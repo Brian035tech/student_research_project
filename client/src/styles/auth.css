@@ -1,0 +1,73 @@
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+}
+
+.auth-left {
+    flex: 1;
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 70px;
+}
+
+.auth-left h1 {
+    font-size: 42px;
+    margin-bottom: 20px;
+}
+
+.auth-left p {
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+.auth-right {
+    width: 430px;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 85%;
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2563eb;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 18px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+}
+
+.login-btn:hover {
+    background: #1d4ed8;
+}
+
+.message {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #dc2626;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
