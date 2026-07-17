@@ -64,18 +64,18 @@ exports.getDashboardStats = (req, res) => {
 
                                                             stats.rejected = rejected[0].rejected;
 
-                                                            db.query(
-                                                                "SELECT COUNT(*) AS submissions FROM submissions",
-                                                                (err, submissions) => {
+                                                           db.query(
+    "SELECT COUNT(*) AS submissions FROM final_submissions",
+    (err, submissions) => {
 
-                                                                    if (err) return res.status(500).json(err);
+        if (err) return res.status(500).json(err);
 
-                                                                    stats.submissions = submissions[0].submissions;
+        stats.submissions = submissions[0].submissions;
 
-                                                                    res.json(stats);
+        res.json(stats);
 
-                                                                }
-                                                            );
+    }
+);
 
                                                         }
                                                     );
@@ -177,20 +177,21 @@ exports.getFinalSubmissions = (req, res) => {
 
     const sql = `
         SELECT
-            submissions.id,
-            submissions.file_name,
-            submissions.file_path,
-            submissions.submitted_at,
-            users.full_name
-        FROM submissions
-        JOIN users
-        ON submissions.student_id = users.id
-        ORDER BY submissions.submitted_at DESC
+            fs.id,
+            fs.file_name,
+            fs.submitted_at,
+            u.full_name
+        FROM final_submissions fs
+        JOIN users u
+            ON fs.student_id = u.id
+        ORDER BY fs.submitted_at DESC
     `;
 
     db.query(sql, (err, results) => {
 
-        if (err) return res.status(500).json(err);
+        if (err) {
+            return res.status(500).json(err);
+        }
 
         res.json(results);
 
