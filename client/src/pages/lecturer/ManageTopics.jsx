@@ -6,29 +6,30 @@ import api from "../../services/api";
 function ManageTopics() {
 
 
-    const [topics, setTopics] = useState([]);
+    const [topics,setTopics] = useState([]);
+    const [comments,setComments] = useState({});
+    const [search,setSearch] = useState("");
 
-    const [comments, setComments] = useState({});
 
 
-
-    useEffect(() => {
+    useEffect(()=>{
 
         fetchTopics();
 
-    }, []);
+    },[]);
 
 
 
-    const fetchTopics = async () => {
+    const fetchTopics = async()=>{
 
-        try {
+        try{
 
             const response = await api.get("/topics");
 
             setTopics(response.data);
 
-        } catch (error) {
+        }
+        catch(error){
 
             console.log(error);
 
@@ -38,19 +39,19 @@ function ManageTopics() {
 
 
 
-    const reviewTopic = async (id, status) => {
+
+    const reviewTopic = async(id,status)=>{
+
+        try{
 
 
-        try {
-
-
-            await api.put(`/topics/${id}`, {
+            await api.put(`/topics/${id}`,{
 
                 status,
 
-                lecturer_comment: comments[id] || "",
+                lecturer_comment:comments[id] || "",
 
-                supervisor_id: null
+                supervisor_id:null
 
             });
 
@@ -62,9 +63,8 @@ function ManageTopics() {
             fetchTopics();
 
 
-
-        } catch(error) {
-
+        }
+        catch(error){
 
             console.log(error);
 
@@ -77,55 +77,62 @@ function ManageTopics() {
 
 
 
-    const statusBadge = (status) => {
 
 
-        let color = "#6c757d";
+    const statusBadge=(status)=>{
 
 
-        if(status === "Approved"){
+        const styles={
 
-            color="#198754";
+            Approved:{
+                bg:"#16a34a",
+                icon:"✅"
+            },
 
-        }
+            Pending:{
+                bg:"#eab308",
+                icon:"⏳"
+            },
 
-        else if(status === "Pending"){
+            Rejected:{
+                bg:"#dc2626",
+                icon:"❌"
+            }
 
-            color="#ffc107";
-
-        }
-
-        else if(status === "Rejected"){
-
-            color="#dc3545";
-
-        }
+        };
 
 
+        const current =
+        styles[status] || {
+            bg:"#64748b",
+            icon:""
+        };
 
-        return (
+
+
+        return(
 
             <span
 
             style={{
 
-                background:color,
+                background:current.bg,
 
                 color:"white",
 
-                padding:"6px 12px",
+                padding:"7px 14px",
 
-                borderRadius:"20px",
+                borderRadius:"30px",
 
                 fontSize:"13px",
 
-                fontWeight:"bold"
+                fontWeight:"600"
 
             }}
 
             >
 
-                {status}
+                {current.icon} {status}
 
             </span>
 
@@ -136,306 +143,313 @@ function ManageTopics() {
 
 
 
-    return (
 
 
-        <LecturerLayout>
+    const filteredTopics = topics.filter(topic=>
 
+        topic.title.toLowerCase()
+        .includes(search.toLowerCase())
 
-            <h1>
-                Manage Research Topics
-            </h1>
+        ||
 
+        topic.full_name.toLowerCase()
+        .includes(search.toLowerCase())
 
+        ||
 
-            <table
-
-            style={{
-
-                width:"100%",
-
-                marginTop:"20px",
-
-                borderCollapse:"collapse",
-
-                background:"white"
-
-            }}
-
-            >
-
-
-                <thead>
-
-
-                <tr
-
-                style={{
-
-                    background:"#1f2937",
-
-                    color:"white"
-
-                }}
-
-                >
-
-
-                    <th style={th}>
-                        Student
-                    </th>
-
-
-                    <th style={th}>
-                        Email
-                    </th>
-
-
-                    <th style={th}>
-                        Topic
-                    </th>
-
-
-                    <th style={th}>
-                        Description
-                    </th>
-
-
-                    <th style={th}>
-                        Status
-                    </th>
-
-
-                    <th style={th}>
-                        Comment
-                    </th>
-
-
-                    <th style={th}>
-                        Action
-                    </th>
-
-
-                </tr>
-
-
-                </thead>
-
-
-
-                <tbody>
-
-
-                {topics.length > 0 ? (
-
-
-                    topics.map((topic)=>(
-
-
-                        <tr key={topic.id}>
-
-
-                            <td style={td}>
-                                {topic.full_name}
-                            </td>
-
-
-                            <td style={td}>
-                                {topic.email}
-                            </td>
-
-
-                            <td style={td}>
-                                {topic.title}
-                            </td>
-
-
-                            <td style={td}>
-                                {topic.description}
-                            </td>
-
-
-                            <td style={td}>
-                                {statusBadge(topic.status)}
-                            </td>
-
-
-
-                            <td style={td}>
-
-
-                                <textarea
-
-                                rows="3"
-
-                                value={comments[topic.id] || ""}
-
-                                placeholder="Lecturer comment..."
-
-                                onChange={(e)=>
-
-                                    setComments({
-
-                                        ...comments,
-
-                                        [topic.id]:e.target.value
-
-                                    })
-
-                                }
-
-                                style={{
-
-                                    width:"100%",
-
-                                    padding:"8px",
-
-                                    borderRadius:"5px"
-
-                                }}
-
-                                />
-
-
-                            </td>
-
-
-
-                            <td style={td}>
-
-
-                                <button
-
-                                onClick={() =>
-                                    reviewTopic(topic.id,"Approved")
-                                }
-
-                                style={approveBtn}
-
-                                >
-
-                                    Approve
-
-                                </button>
-
-
-
-                                <button
-
-                                onClick={() =>
-                                    reviewTopic(topic.id,"Rejected")
-                                }
-
-                                style={rejectBtn}
-
-                                >
-
-                                    Reject
-
-                                </button>
-
-
-                            </td>
-
-
-                        </tr>
-
-
-                    ))
-
-
-                ) : (
-
-
-                    <tr>
-
-                        <td colSpan="7" style={td}>
-
-                            No research topics found.
-
-                        </td>
-
-                    </tr>
-
-
-                )}
-
-
-
-                </tbody>
-
-
-            </table>
-
-
-
-        </LecturerLayout>
-
+        topic.email.toLowerCase()
+        .includes(search.toLowerCase())
 
     );
+
+
+
+
+
+return(
+
+<LecturerLayout>
+
+
+<div className="container-fluid">
+
+
+<div
+
+className="card border-0 shadow-sm p-4"
+
+style={{
+
+borderRadius:"22px"
+
+}}
+
+>
+
+
+<div className="mb-4">
+
+
+<h2 className="fw-bold">
+
+📚 Manage Research Topics
+
+</h2>
+
+
+<p className="text-muted">
+
+Review and manage student research proposals
+
+</p>
+
+
+</div>
+
+
+
+
+<input
+
+className="form-control mb-4"
+
+style={{
+
+borderRadius:"15px",
+
+padding:"12px"
+
+}}
+
+placeholder="🔍 Search student, email or topic..."
+
+value={search}
+
+onChange={(e)=>setSearch(e.target.value)}
+
+/>
+
+
+
+
+<div className="table-responsive">
+
+
+<table className="table align-middle table-hover">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>Student</th>
+
+<th>Email</th>
+
+<th>Research Topic</th>
+
+<th>Status</th>
+
+<th>Comment</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody>
+
+
+{
+
+filteredTopics.length > 0 ?
+
+
+filteredTopics.map(topic=>(
+
+
+<tr key={topic.id}>
+
+
+<td>
+
+<div className="fw-semibold">
+
+{topic.full_name}
+
+</div>
+
+</td>
+
+
+
+<td>
+
+{topic.email}
+
+</td>
+
+
+
+<td>
+
+
+<div className="fw-bold">
+
+{topic.title}
+
+</div>
+
+
+<small className="text-muted">
+
+{topic.description}
+
+</small>
+
+
+</td>
+
+
+
+
+<td>
+
+{statusBadge(topic.status)}
+
+</td>
+
+
+
+
+<td>
+
+
+<textarea
+
+rows="2"
+
+className="form-control"
+
+placeholder="Lecturer comment..."
+
+value={comments[topic.id] || ""}
+
+onChange={(e)=>
+
+setComments({
+
+...comments,
+
+[topic.id]:e.target.value
+
+})
+
+}
+
+/>
+
+
+</td>
+
+
+
+
+<td>
+
+
+<button
+
+className="btn btn-success btn-sm me-2"
+
+onClick={()=>reviewTopic(topic.id,"Approved")}
+
+>
+
+✅ Approve
+
+</button>
+
+
+
+<button
+
+className="btn btn-danger btn-sm"
+
+onClick={()=>reviewTopic(topic.id,"Rejected")}
+
+>
+
+❌ Reject
+
+</button>
+
+
+
+</td>
+
+
+
+</tr>
+
+
+))
+
+
+:
+
+
+<tr>
+
+<td
+
+colSpan="6"
+
+className="text-center py-5 text-muted"
+
+>
+
+No research topics found.
+
+</td>
+
+</tr>
 
 
 }
 
 
 
-const th={
-
-    padding:"12px",
-
-    border:"1px solid #ddd",
-
-    textAlign:"left"
-
-};
+</tbody>
 
 
-
-const td={
-
-    padding:"12px",
-
-    border:"1px solid #ddd"
-
-};
+</table>
 
 
-
-const approveBtn={
-
-    background:"#198754",
-
-    color:"white",
-
-    border:"none",
-
-    padding:"8px 12px",
-
-    marginRight:"8px",
-
-    borderRadius:"5px",
-
-    cursor:"pointer"
-
-};
+</div>
 
 
+</div>
 
-const rejectBtn={
 
-    background:"#dc3545",
+</div>
 
-    color:"white",
 
-    border:"none",
+</LecturerLayout>
 
-    padding:"8px 12px",
 
-    borderRadius:"5px",
+);
 
-    cursor:"pointer"
 
-};
+}
 
 
 

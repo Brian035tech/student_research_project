@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -41,33 +43,39 @@ function App() {
         <Route path="/student/feedback" element={<Feedback />} />
         <Route path="/student/final" element={<FinalSubmission />} />
         <Route path="/student/profile" element={<Profile />} />
-        <Route path="/supervisor/topics" element={<AssignedTopics />} />
-<Route path="/supervisor/feedback" element={<SupervisorFeedback />} />
-<Route path="/supervisor/profile" element={<SupervisorProfile />} />
-<Route path="/admin/dashboard" element={<AdminDashboard />} />
-<Route path="/admin/topics" element={<Topics />} />
-<Route path="/admin/submissions" element={<Submissions />} />
-<Route path="/admin/profile" element={<AdminProfile />} />
-<Route path="/admin/users" element={<ManageUsers />} />
-
-        {/* Lecturer */}
-        <Route path="/lecturer" element={<LecturerDashboard />} />
-        <Route
-    path="/lecturer/topics"
-    element={<ManageTopics />}
-/>
 
         {/* Supervisor */}
         <Route path="/supervisor" element={<SupervisorDashboard />} />
+        <Route path="/supervisor/topics" element={<AssignedTopics />} />
+        <Route path="/supervisor/feedback" element={<SupervisorFeedback />} />
+        <Route path="/supervisor/profile" element={<SupervisorProfile />} />
+
+        {/* Lecturer */}
+        <Route path="/lecturer" element={<LecturerDashboard />} />
+        <Route path="/lecturer/profile" element={<Profile />} />
+        <Route path="/lecturer/topics" element={<ManageTopics />} />
+        <Route path="/lecturer/assign" element={<AssignSupervisors />} />
 
         {/* Admin */}
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route
-    path="/lecturer/assign"
-    element={<AssignSupervisors />}
-/>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/topics" element={<Topics />} />
+        <Route path="/admin/submissions" element={<Submissions />} />
+        <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin/users" element={<ManageUsers />} />
 
       </Routes>
+
+      {/* Toast Notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </BrowserRouter>
   );
 }

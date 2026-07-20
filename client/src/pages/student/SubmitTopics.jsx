@@ -2,178 +2,315 @@ import { useState } from "react";
 import StudentLayout from "../../components/StudentLayout";
 import api from "../../services/api";
 
+
 function SubmitTopics() {
 
-    const [formData, setFormData] = useState({
-        topic_title: "",
-        description: ""
+
+    const [formData,setFormData] = useState({
+
+        topic_title:"",
+        description:""
+
     });
 
-    const [message, setMessage] = useState("");
 
-    const handleChange = (e) => {
+    const [message,setMessage] = useState("");
+
+
+
+
+    const handleChange=(e)=>{
 
         setFormData({
+
             ...formData,
-            [e.target.name]: e.target.value
+
+            [e.target.name]:e.target.value
+
         });
 
     };
 
-    const handleSubmit = async (e) => {
+
+
+
+
+    const handleSubmit=async(e)=>{
 
         e.preventDefault();
 
-        try {
 
-            const response = await api.post("/topics", formData);
+        try{
 
-            setMessage(response.data.message);
+
+            const response = await api.post(
+                "/topics",
+                formData
+            );
+
+
+            setMessage(
+                "✅ " + response.data.message
+            );
+
 
             setFormData({
-                topic_title: "",
-                description: ""
+
+                topic_title:"",
+
+                description:""
+
             });
 
-            setTimeout(() => {
+
+
+            setTimeout(()=>{
+
                 setMessage("");
-            }, 3000);
 
-        } catch (error) {
+            },3000);
 
-            if (error.response) {
 
-                setMessage(error.response.data.message);
+        }
+        catch(error){
 
-            } else {
 
-                setMessage("Server Error");
+            if(error.response){
+
+                setMessage(
+                    "❌ " + error.response.data.message
+                );
+
+            }
+            else{
+
+                setMessage(
+                    "❌ Server Error"
+                );
 
             }
 
+
         }
+
 
     };
 
-    return (
 
-        <StudentLayout>
 
-            <h1>Submit Research Topic</h1>
 
-            <div
-                style={{
-                    background: "#fff",
-                    padding: "30px",
-                    marginTop: "20px",
-                    borderRadius: "10px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    maxWidth: "800px"
-                }}
-            >
 
-                <p
-                    style={{
-                        color: "#555",
-                        marginBottom: "25px"
-                    }}
-                >
-                    Submit your proposed research topic for lecturer review.
-                    You may submit up to three research topics.
-                </p>
+return(
 
-                {message && (
+<StudentLayout>
 
-                    <div
-                        style={{
-                            background: "#d1fae5",
-                            color: "#065f46",
-                            padding: "12px",
-                            borderRadius: "6px",
-                            marginBottom: "20px"
-                        }}
-                    >
-                        {message}
-                    </div>
 
-                )}
+<div className="container-fluid">
 
-                <form onSubmit={handleSubmit}>
 
-                    <label
-                        style={{
-                            fontWeight: "bold"
-                        }}
-                    >
-                        Research Topic
-                    </label>
+<div
 
-                    <input
-                        type="text"
-                        name="topic_title"
-                        value={formData.topic_title}
-                        onChange={handleChange}
-                        placeholder="Enter research topic"
-                        required
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            marginTop: "8px",
-                            marginBottom: "20px",
-                            borderRadius: "6px",
-                            border: "1px solid #ccc"
-                        }}
-                    />
+className="card border-0 shadow-sm p-4"
 
-                    <label
-                        style={{
-                            fontWeight: "bold"
-                        }}
-                    >
-                        Description
-                    </label>
+style={{
 
-                    <textarea
-                        name="description"
-                        rows="6"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder="Describe your research topic..."
-                        required
-                        style={{
-                            width: "100%",
-                            padding: "12px",
-                            marginTop: "8px",
-                            borderRadius: "6px",
-                            border: "1px solid #ccc",
-                            resize: "vertical"
-                        }}
-                    />
+borderRadius:"22px",
 
-                    <button
-                        type="submit"
-                        style={{
-                            marginTop: "25px",
-                            background: "#1e3a8a",
-                            color: "#fff",
-                            border: "none",
-                            padding: "12px 30px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "16px"
-                        }}
-                    >
-                        Submit Research Topic
-                    </button>
+maxWidth:"850px"
 
-                </form>
+}}
 
-            </div>
+>
 
-        </StudentLayout>
 
-    );
+<div className="mb-4">
+
+
+<h2 className="fw-bold">
+
+📝 Submit Research Topic
+
+</h2>
+
+
+<p className="text-muted">
+
+Submit your proposed research topic for lecturer approval.
+
+</p>
+
+
+</div>
+
+
+
+
+<div
+
+className="alert alert-info"
+
+style={{
+
+borderRadius:"15px"
+
+}}
+
+>
+
+📌 You may submit up to <strong>three research topics</strong>.
+Your lecturer will review and approve one topic.
+
+</div>
+
+
+
+
+
+{
+
+message &&
+
+
+<div
+
+className="alert alert-success"
+
+style={{
+
+borderRadius:"15px"
+
+}}
+
+>
+
+{message}
+
+</div>
+
 
 }
+
+
+
+
+
+<form onSubmit={handleSubmit}>
+
+
+<label className="fw-semibold">
+
+Research Topic
+
+</label>
+
+
+<input
+
+type="text"
+
+name="topic_title"
+
+className="form-control mt-2 mb-4"
+
+style={{
+
+padding:"13px",
+
+borderRadius:"12px"
+
+}}
+
+placeholder="Enter your research topic"
+
+value={formData.topic_title}
+
+onChange={handleChange}
+
+required
+
+/>
+
+
+
+
+
+<label className="fw-semibold">
+
+Description
+
+</label>
+
+
+
+<textarea
+
+name="description"
+
+rows="6"
+
+className="form-control mt-2"
+
+style={{
+
+padding:"13px",
+
+borderRadius:"12px",
+
+resize:"vertical"
+
+}}
+
+placeholder="Explain your research idea, objectives and expected outcome..."
+
+value={formData.description}
+
+onChange={handleChange}
+
+required
+
+/>
+
+
+
+
+
+<button
+
+type="submit"
+
+className="btn btn-primary mt-4 px-4 py-2"
+
+style={{
+
+borderRadius:"12px",
+
+fontWeight:"600"
+
+}}
+
+>
+
+🚀 Submit Topic
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+</div>
+
+
+</StudentLayout>
+
+);
+
+
+}
+
 
 export default SubmitTopics;

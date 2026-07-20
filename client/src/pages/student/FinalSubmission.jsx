@@ -2,227 +2,487 @@ import { useEffect, useState } from "react";
 import StudentLayout from "../../components/StudentLayout";
 import api from "../../services/api";
 
+
 function FinalSubmission() {
 
-    const [topics, setTopics] = useState([]);
-    const [topicId, setTopicId] = useState("");
-    const [file, setFile] = useState(null);
-    const [message, setMessage] = useState("");
 
-    useEffect(() => {
+    const [topics,setTopics] = useState([]);
+    const [topicId,setTopicId] = useState("");
+    const [file,setFile] = useState(null);
+    const [message,setMessage] = useState("");
+
+
+
+
+
+    useEffect(()=>{
+
         loadTopics();
-    }, []);
 
-    const loadTopics = async () => {
+    },[]);
 
-        try {
+
+
+
+
+    const loadTopics = async()=>{
+
+
+        try{
+
 
             const res = await api.get("/topics");
 
-            const approvedTopics = res.data.filter(
-                (topic) => topic.status === "Approved"
+
+            const approved =
+            res.data.filter(
+
+                topic => topic.status === "Approved"
+
             );
 
-            setTopics(approvedTopics);
 
-            if (approvedTopics.length > 0) {
-                setTopicId(approvedTopics[0].id);
+            setTopics(approved);
+
+
+
+            if(approved.length > 0){
+
+                setTopicId(approved[0].id);
+
             }
 
-        } catch (err) {
+
+        }
+        catch(err){
 
             console.log(err);
 
         }
 
+
     };
 
-    const submitProject = async (e) => {
+
+
+
+
+
+    const submitProject = async(e)=>{
+
 
         e.preventDefault();
 
-        if (!file) {
 
-            alert("Please choose a file.");
+
+        if(!file){
+
+            setMessage(
+                "❌ Please select a file first."
+            );
 
             return;
 
         }
 
+
+
         const formData = new FormData();
 
-        formData.append("topic_id", topicId);
-        formData.append("document", file);
 
-        try {
+        formData.append(
+            "topic_id",
+            topicId
+        );
+
+
+        formData.append(
+            "document",
+            file
+        );
+
+
+
+        try{
+
 
             const res = await api.post(
+
                 "/submissions",
+
                 formData,
+
                 {
-                    headers: {
-                        "Content-Type": "multipart/form-data"
+
+                    headers:{
+
+                        "Content-Type":
+                        "multipart/form-data"
+
                     }
+
                 }
+
             );
 
-            setMessage(res.data.message);
+
+
+            setMessage(
+                "✅ " + res.data.message
+            );
+
+
 
             setFile(null);
 
-            document.getElementById("fileInput").value = "";
 
-        } catch (err) {
+            document.getElementById(
+                "fileInput"
+            ).value = "";
+
+
+        }
+        catch(err){
+
 
             console.log(err);
 
+
             setMessage(
-                err.response?.data?.message || "Upload failed."
+
+                "❌ " +
+
+                (
+                    err.response?.data?.message ||
+
+                    "Upload failed."
+
+                )
+
             );
+
 
         }
 
+
     };
 
-    return (
 
-        <StudentLayout>
 
-            <h1>Final Project Submission</h1>
 
-            <div
-                style={{
-                    background: "#fff",
-                    padding: "30px",
-                    marginTop: "20px",
-                    borderRadius: "10px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    maxWidth: "700px"
-                }}
-            >
 
-                {topics.length === 0 ? (
 
-                    <div
-                        style={{
-                            textAlign: "center",
-                            padding: "20px"
-                        }}
-                    >
-                        <h3>No Approved Topic</h3>
+return(
 
-                        <p>
-                            Your topic must be approved before you can upload
-                            your final project.
-                        </p>
-                    </div>
+<StudentLayout>
 
-                ) : (
 
-                    <form onSubmit={submitProject}>
+<div className="container-fluid">
 
-                        <label
-                            style={{ fontWeight: "bold" }}
-                        >
-                            Approved Topic
-                        </label>
 
-                        <select
-                            value={topicId}
-                            onChange={(e) => setTopicId(e.target.value)}
-                            style={{
-                                width: "100%",
-                                padding: "12px",
-                                marginTop: "10px",
-                                marginBottom: "20px"
-                            }}
-                        >
-                            {topics.map((topic) => (
+<div
 
-                                <option
-                                    key={topic.id}
-                                    value={topic.id}
-                                >
-                                    {topic.title}
-                                </option>
+className="card border-0 shadow-sm p-4"
 
-                            ))}
-                        </select>
+style={{
 
-                        <label
-                            style={{ fontWeight: "bold" }}
-                        >
-                            Upload Final Research Document
-                        </label>
+borderRadius:"22px",
 
-                        <input
-                            id="fileInput"
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            onChange={(e) =>
-                                setFile(e.target.files[0])
-                            }
-                            style={{
-                                width: "100%",
-                                marginTop: "10px"
-                            }}
-                        />
+maxWidth:"800px"
 
-                        {file && (
+}}
 
-                            <p
-                                style={{
-                                    color: "#198754",
-                                    marginTop: "10px"
-                                }}
-                            >
-                                Selected File: <strong>{file.name}</strong>
-                            </p>
+>
 
-                        )}
 
-                        <br />
 
-                        <button
-                            type="submit"
-                            style={{
-                                background: "#1e3a8a",
-                                color: "#fff",
-                                padding: "12px 30px",
-                                border: "none",
-                                borderRadius: "5px",
-                                cursor: "pointer"
-                            }}
-                        >
-                            Upload Final Project
-                        </button>
+<h2 className="fw-bold">
 
-                    </form>
+📄 Final Project Submission
 
-                )}
+</h2>
 
-                {message && (
 
-                    <div
-                        style={{
-                            marginTop: "25px",
-                            padding: "15px",
-                            background: "#e8f5e9",
-                            color: "#2e7d32",
-                            borderRadius: "5px"
-                        }}
-                    >
-                        {message}
-                    </div>
+<p className="text-muted">
 
-                )}
+Upload your approved research project document.
 
-            </div>
+</p>
 
-        </StudentLayout>
 
-    );
+
+
+
+{
+
+topics.length === 0 ?
+
+
+
+<div
+
+className="text-center py-5"
+
+>
+
+
+<h3>
+
+⚠️ No Approved Topic
+
+</h3>
+
+
+<p className="text-muted">
+
+Your research topic must be approved before
+you can submit your final project.
+
+</p>
+
+
+</div>
+
+
+
+:
+
+
+
+<form onSubmit={submitProject}>
+
+
+<div className="mb-4">
+
+
+<label className="fw-semibold">
+
+Approved Research Topic
+
+</label>
+
+
+
+<select
+
+className="form-select mt-2"
+
+style={{
+
+padding:"12px",
+
+borderRadius:"12px"
+
+}}
+
+value={topicId}
+
+onChange={(e)=>
+
+setTopicId(e.target.value)
 
 }
+
+>
+
+
+{
+
+topics.map(topic=>(
+
+
+<option
+
+key={topic.id}
+
+value={topic.id}
+
+>
+
+{topic.title}
+
+</option>
+
+
+))
+
+
+}
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<div className="mb-4">
+
+
+<label className="fw-semibold">
+
+Upload Document
+
+</label>
+
+
+
+<div
+
+className="border rounded p-3 mt-2"
+
+style={{
+
+background:"#f8fafc"
+
+}}
+
+>
+
+
+<input
+
+id="fileInput"
+
+type="file"
+
+className="form-control"
+
+accept=".pdf,.doc,.docx"
+
+onChange={(e)=>
+
+setFile(e.target.files[0])
+
+}
+
+
+/>
+
+
+{
+
+file &&
+
+
+<div
+
+className="mt-3 text-success"
+
+>
+
+📎 Selected File:
+
+{" "}
+
+<strong>
+
+{file.name}
+
+</strong>
+
+
+</div>
+
+
+}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<button
+
+type="submit"
+
+className="btn btn-primary px-4 py-2"
+
+style={{
+
+borderRadius:"12px",
+
+fontWeight:"600"
+
+}}
+
+>
+
+⬆ Upload Final Project
+
+</button>
+
+
+
+</form>
+
+
+}
+
+
+
+
+
+
+{
+
+message &&
+
+
+<div
+
+className="alert mt-4"
+
+style={{
+
+borderRadius:"15px",
+
+background:
+
+message.includes("❌")
+
+?
+
+"#fee2e2"
+
+:
+
+"#dcfce7"
+
+}}
+
+>
+
+{message}
+
+</div>
+
+
+}
+
+
+
+</div>
+
+
+</div>
+
+
+</StudentLayout>
+
+);
+
+
+}
+
 
 export default FinalSubmission;

@@ -6,38 +6,41 @@ import api from "../../services/api";
 function AssignSupervisors() {
 
 
-    const [topics, setTopics] = useState([]);
-
-    const [supervisors, setSupervisors] = useState([]);
-
-    const [selectedSupervisor, setSelectedSupervisor] = useState({});
-
+    const [topics,setTopics] = useState([]);
+    const [supervisors,setSupervisors] = useState([]);
+    const [selectedSupervisor,setSelectedSupervisor] = useState({});
+    const [search,setSearch] = useState("");
 
 
-    useEffect(() => {
+
+    useEffect(()=>{
 
         fetchApprovedTopics();
-
         fetchSupervisors();
 
-    }, []);
+    },[]);
 
 
 
-    const fetchApprovedTopics = async () => {
 
-        try {
+
+    const fetchApprovedTopics = async()=>{
+
+        try{
 
             const response = await api.get("/topics");
+
 
             const approved = response.data.filter(
                 topic => topic.status === "Approved"
             );
 
+
             setTopics(approved);
 
 
-        } catch(error) {
+        }
+        catch(error){
 
             console.log(error);
 
@@ -47,16 +50,19 @@ function AssignSupervisors() {
 
 
 
-    const fetchSupervisors = async () => {
 
-        try {
+
+    const fetchSupervisors = async()=>{
+
+        try{
 
             const response = await api.get("/users/supervisors");
 
             setSupervisors(response.data);
 
 
-        } catch(error) {
+        }
+        catch(error){
 
             console.log(error);
 
@@ -66,10 +72,13 @@ function AssignSupervisors() {
 
 
 
+
+
     const assignSupervisor = async(topicId)=>{
 
 
-        const supervisorId = selectedSupervisor[topicId];
+        const supervisorId =
+        selectedSupervisor[topicId];
 
 
         if(!supervisorId){
@@ -82,7 +91,7 @@ function AssignSupervisors() {
 
 
 
-        try {
+        try{
 
 
             await api.put(
@@ -90,7 +99,7 @@ function AssignSupervisors() {
                 `/topics/${topicId}/assign-supervisor`,
 
                 {
-                    supervisor_id: supervisorId
+                    supervisor_id:supervisorId
                 }
 
             );
@@ -101,9 +110,8 @@ function AssignSupervisors() {
             fetchApprovedTopics();
 
 
-
-        }catch(error){
-
+        }
+        catch(error){
 
             console.log(error);
 
@@ -116,331 +124,411 @@ function AssignSupervisors() {
 
 
 
-    return (
 
-        <LecturerLayout>
 
+    const filteredTopics = topics.filter(topic=>
 
-            <h1>
-                Assign Supervisors
-            </h1>
+        topic.full_name.toLowerCase()
+        .includes(search.toLowerCase())
 
+        ||
 
+        topic.title.toLowerCase()
+        .includes(search.toLowerCase())
 
-            <table
+        ||
 
-            style={{
-
-                width:"100%",
-
-                borderCollapse:"collapse",
-
-                marginTop:"20px",
-
-                background:"white"
-
-            }}
-
-            >
-
-
-            <thead>
-
-
-                <tr
-
-                style={{
-
-                    background:"#1f2937",
-
-                    color:"white"
-
-                }}
-
-                >
-
-                    <th style={th}>
-                        Student
-                    </th>
-
-                    <th style={th}>
-                        Email
-                    </th>
-
-                    <th style={th}>
-                        Topic
-                    </th>
-
-                    <th style={th}>
-                        Supervisor
-                    </th>
-
-                    <th style={th}>
-                        Select
-                    </th>
-
-                    <th style={th}>
-                        Action
-                    </th>
-
-
-                </tr>
-
-
-            </thead>
-
-
-
-            <tbody>
-
-
-            {topics.length > 0 ? (
-
-
-                topics.map(topic=>(
-
-
-                    <tr key={topic.id}>
-
-
-                        <td style={td}>
-                            {topic.full_name}
-                        </td>
-
-
-                        <td style={td}>
-                            {topic.email}
-                        </td>
-
-
-                        <td style={td}>
-                            {topic.title}
-                        </td>
-
-
-
-                        <td style={td}>
-
-
-                        {topic.supervisor_name ? (
-
-                            <span
-
-                            style={{
-                                background:"#198754",
-                                color:"white",
-                                padding:"6px 12px",
-                                borderRadius:"20px",
-                                fontSize:"13px"
-                            }}
-
-                            >
-
-                                {topic.supervisor_name}
-
-                            </span>
-
-
-                        ):(
-
-                            <span style={{color:"gray"}}>
-                                Not Assigned
-                            </span>
-
-                        )}
-
-
-                        </td>
-
-
-
-                        <td style={td}>
-
-
-                        {topic.supervisor_name ? (
-
-                            "Assigned"
-
-
-                        ):(
-
-
-                            <select
-
-                            value={
-                                selectedSupervisor[topic.id] || ""
-                            }
-
-                            onChange={(e)=>
-
-                                setSelectedSupervisor({
-
-                                    ...selectedSupervisor,
-
-                                    [topic.id]:e.target.value
-
-                                })
-
-                            }
-
-                            style={{
-
-                                padding:"8px",
-
-                                borderRadius:"5px"
-
-                            }}
-
-                            >
-
-
-                                <option value="">
-                                    Select Supervisor
-                                </option>
-
-
-                                {supervisors.map(supervisor=>(
-
-
-                                    <option
-
-                                    key={supervisor.id}
-
-                                    value={supervisor.id}
-
-                                    >
-
-                                        {supervisor.full_name}
-
-                                    </option>
-
-
-                                ))}
-
-
-                            </select>
-
-
-                        )}
-
-
-                        </td>
-
-
-
-                        <td style={td}>
-
-
-                        {!topic.supervisor_name && (
-
-
-                            <button
-
-                            onClick={() =>
-                                assignSupervisor(topic.id)
-                            }
-
-                            style={buttonStyle}
-
-                            >
-
-                                Assign
-
-                            </button>
-
-
-                        )}
-
-
-                        </td>
-
-
-                    </tr>
-
-
-                ))
-
-
-            ):(
-
-
-                <tr>
-
-                    <td
-
-                    colSpan="6"
-
-                    style={{
-
-                        padding:"20px",
-
-                        textAlign:"center"
-
-                    }}
-
-                    >
-
-                        No approved topics found.
-
-                    </td>
-
-                </tr>
-
-
-            )}
-
-
-
-            </tbody>
-
-
-            </table>
-
-
-
-        </LecturerLayout>
+        topic.email.toLowerCase()
+        .includes(search.toLowerCase())
 
     );
+
+
+
+
+
+return(
+
+<LecturerLayout>
+
+
+<div className="container-fluid">
+
+
+<div
+
+className="card border-0 shadow-sm p-4"
+
+style={{
+
+borderRadius:"22px"
+
+}}
+
+>
+
+
+<div className="mb-4">
+
+
+<h2 className="fw-bold">
+
+👨‍🏫 Assign Supervisors
+
+</h2>
+
+
+<p className="text-muted">
+
+Assign supervisors to approved research topics
+
+</p>
+
+
+</div>
+
+
+
+
+<input
+
+className="form-control mb-4"
+
+style={{
+
+borderRadius:"15px",
+
+padding:"12px"
+
+}}
+
+placeholder="🔍 Search student or research topic..."
+
+value={search}
+
+onChange={(e)=>setSearch(e.target.value)}
+
+/>
+
+
+
+
+<div className="table-responsive">
+
+
+<table className="table table-hover align-middle">
+
+
+<thead>
+
+
+<tr>
+
+<th>Student</th>
+
+<th>Email</th>
+
+<th>Research Topic</th>
+
+<th>Supervisor</th>
+
+<th>Select</th>
+
+<th>Action</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody>
+
+
+{
+
+filteredTopics.length > 0 ?
+
+
+filteredTopics.map(topic=>(
+
+
+<tr key={topic.id}>
+
+
+<td>
+
+<div className="fw-semibold">
+
+{topic.full_name}
+
+</div>
+
+</td>
+
+
+
+
+<td>
+
+{topic.email}
+
+</td>
+
+
+
+
+<td>
+
+<div className="fw-bold">
+
+{topic.title}
+
+</div>
+
+
+<small className="text-muted">
+
+Approved Topic
+
+</small>
+
+
+</td>
+
+
+
+
+
+<td>
+
+
+{
+
+topic.supervisor_name ?
+
+
+<span
+
+style={{
+
+background:"#16a34a",
+
+color:"white",
+
+padding:"7px 14px",
+
+borderRadius:"30px",
+
+fontSize:"13px",
+
+fontWeight:"600"
+
+}}
+
+>
+
+👨‍🏫 {topic.supervisor_name}
+
+</span>
+
+
+
+:
+
+
+<span className="text-muted">
+
+⚪ Not Assigned
+
+</span>
+
 
 }
 
 
 
-const th={
-
-    padding:"12px",
-
-    textAlign:"left",
-
-    borderBottom:"1px solid #ddd"
-
-};
+</td>
 
 
-const td={
-
-    padding:"12px",
-
-    borderBottom:"1px solid #ddd"
-
-};
 
 
-const buttonStyle={
 
-    background:"#1e3a8a",
+<td>
 
-    color:"white",
 
-    border:"none",
+{
 
-    padding:"8px 15px",
+topic.supervisor_name ?
 
-    borderRadius:"5px",
 
-    cursor:"pointer"
+<span className="badge bg-success">
 
-};
+Assigned
+
+</span>
+
+
+
+:
+
+
+<select
+
+className="form-select"
+
+value={selectedSupervisor[topic.id] || ""}
+
+
+onChange={(e)=>
+
+setSelectedSupervisor({
+
+...selectedSupervisor,
+
+[topic.id]:e.target.value
+
+})
+
+}
+
+
+>
+
+
+<option value="">
+
+Select Supervisor
+
+</option>
+
+
+
+{
+
+supervisors.map(supervisor=>(
+
+
+<option
+
+key={supervisor.id}
+
+value={supervisor.id}
+
+>
+
+{supervisor.full_name}
+
+</option>
+
+
+))
+
+
+}
+
+
+</select>
+
+
+}
+
+
+
+</td>
+
+
+
+
+
+<td>
+
+
+{
+
+!topic.supervisor_name &&
+
+
+<button
+
+className="btn btn-primary btn-sm"
+
+onClick={()=>assignSupervisor(topic.id)}
+
+>
+
+👨‍🏫 Assign
+
+</button>
+
+
+}
+
+
+
+</td>
+
+
+
+
+</tr>
+
+
+))
+
+
+:
+
+
+<tr>
+
+
+<td
+
+colSpan="6"
+
+className="text-center py-5 text-muted"
+
+>
+
+No approved topics found.
+
+</td>
+
+
+</tr>
+
+
+}
+
+
+
+</tbody>
+
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</LecturerLayout>
+
+
+);
+
+
+}
 
 
 export default AssignSupervisors;
