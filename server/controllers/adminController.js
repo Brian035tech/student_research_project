@@ -193,7 +193,12 @@ exports.getFinalSubmissions = (req, res) => {
             return res.status(500).json(err);
         }
 
-        res.json(results);
+        const submissions = results.map(item => ({
+            ...item,
+            download_url: `http://localhost:5000/uploads/${item.file_name}`
+        }));
+
+        res.json(submissions);
 
     });
 
@@ -216,5 +221,164 @@ exports.getProfile = (req, res) => {
 
         }
     );
+
+};
+
+/* ===========================
+   Download System Report
+=========================== */
+
+exports.downloadReport = (req, res) => {
+
+    const report = {};
+
+    db.query(
+        "SELECT COUNT(*) AS students FROM users WHERE role='student'",
+        (err, students) => {
+
+            if (err) return res.status(500).json(err);
+
+            report.students = students[0].students;
+
+            db.query(
+                "SELECT COUNT(*) AS lecturers FROM users WHERE role='lecturer'",
+                (err, lecturers) => {
+
+                    if (err) return res.status(500).json(err);
+
+                    report.lecturers = lecturers[0].lecturers;
+
+                    db.query(
+                        "SELECT COUNT(*) AS supervisors FROM users WHERE role='supervisor'",
+                        (err, supervisors) => {
+
+                            if (err) return res.status(500).json(err);
+
+                            report.supervisors = supervisors[0].supervisors;
+
+                            db.query(
+                                "SELECT COUNT(*) AS topics FROM research_topics",
+                                (err, topics) => {
+
+                                    if (err) return res.status(500).json(err);
+
+                                    report.topics = topics[0].topics;
+
+                                    db.query(
+                                        "SELECT COUNT(*) AS approved FROM research_topics WHERE status='Approved'",
+                                        (err, approved) => {
+
+                                            if (err) return res.status(500).json(err);
+
+                                            report.approved = approved[0].approved;
+
+                                            db.query(
+                                                "SELECT COUNT(*) AS pending FROM research_topics WHERE status='Pending'",
+                                                (err, pending) => {
+
+                                                    if (err) return res.status(500).json(err);
+
+                                                    report.pending = pending[0].pending;
+
+                                                    db.query(
+                                                        "SELECT COUNT(*) AS rejected FROM research_topics WHERE status='Rejected'",
+                                                        (err, rejected) => {
+
+                                                            if (err) return res.status(500).json(err);
+
+                                                            report.rejected = rejected[0].rejected;
+
+                                                            db.query(
+                                                                "SELECT COUNT(*) AS submissions FROM final_submissions",
+                                                                (err, submissions) => {
+
+                                                                    if (err) return res.status(500).json(err);
+
+                                                                    report.submissions = submissions[0].submissions;
+
+                                                                    const content = `
+==================================================
+ STUDENT RESEARCH MANAGEMENT SYSTEM REPORT
+==================================================
+
+Students             : ${report.students}
+Lecturers            : ${report.lecturers}
+Supervisors          : ${report.supervisors}
+
+Total Topics         : ${report.topics}
+Approved Topics      : ${report.approved}
+Pending Topics       : ${report.pending}
+Rejected Topics      : ${report.rejected}
+
+Final Submissions    : ${report.submissions}
+
+Generated On:
+${new Date().toLocaleString()}
+
+==================================================
+`;
+
+                                                                    res.setHeader(
+                                                                        "Content-Disposition",
+                                                                        "attachment; filename=SRMS_Report.txt"
+                                                                    );
+
+                                                                    res.setHeader(
+                                                                        "Content-Type",
+                                                                        "text/plain"
+                                                                    );
+
+                                                                    res.send(content);
+
+                                                                }
+                                                            );
+
+                                                        }
+                                                    );
+
+                                                }
+                                            );
+
+                                        }
+                                    );
+
+                                }
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+};
+
+exports.getRecentActivity = (req, res) => {
+
+    const sql = `
+        SELECT
+            u.full_name,
+            rt.title,
+            rt.status,
+            rt.created_at
+        FROM research_topics rt
+        JOIN users u
+            ON rt.student_id = u.id
+        ORDER BY rt.created_at DESC
+        LIMIT 5
+    `;
+
+    db.query(sql, (err, results) => {
+
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        res.json(results);
+
+    });
 
 };

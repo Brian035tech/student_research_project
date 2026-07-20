@@ -1,108 +1,198 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
-
 import StudentLayout from "../../components/StudentLayout";
 import DashboardCard from "../../components/DashboardCard";
 
-
 function Dashboard() {
+  const [stats, setStats] = useState({});
 
+  useEffect(() => {
+    getStats();
+  }, []);
 
-    const [stats, setStats] = useState({});
+  const getStats = async () => {
+    try {
+      const response = await api.get("/student/dashboard");
+      setStats(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  // Calculate progress
+  let progress = 20;
 
+  if (stats.topics > 0) progress = 40;
+  if (stats.supervisor && stats.supervisor !== "Not Assigned") progress = 70;
+  if (stats.submissions > 0) progress = 100;
 
-    useEffect(() => {
+  return (
+    <StudentLayout>
+      {/* Welcome */}
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-body">
+          <h2 className="fw-bold">
+            Welcome 👋
+          </h2>
 
-        getStats();
+          <p className="text-muted mb-1">
+            Student Research Management System
+          </p>
 
-    }, []);
+          <small className="text-secondary">
+            {new Date().toDateString()}
+          </small>
+        </div>
+      </div>
 
+      {/* Dashboard Cards */}
 
+      <div className="row">
 
+        <DashboardCard
+          title="Topics Submitted"
+          value={stats.topics || 0}
+          icon="📝"
+          color="#0d6efd"
+        />
 
-    const getStats = async () => {
+        <DashboardCard
+          title="Supervisor"
+          value={stats.supervisor || "Not Assigned"}
+          icon="👨‍🏫"
+          color="#198754"
+        />
 
-        try {
+        <DashboardCard
+          title="Final Submission"
+          value={stats.submissions || 0}
+          icon="📄"
+          color="#fd7e14"
+        />
 
-            const response = await api.get("/student/dashboard");
+      </div>
 
-            setStats(response.data);
+      {/* Progress */}
 
-        } catch (error) {
+      <div className="card shadow-sm border-0 mt-4">
+        <div className="card-body">
 
-            console.log(error);
+          <div className="d-flex justify-content-between">
+            <h5 className="fw-bold">
+              Research Progress
+            </h5>
 
-        }
+            <span className="badge bg-primary">
+              {progress}%
+            </span>
 
-    };
+          </div>
 
+          <div className="progress mt-3" style={{ height: "12px" }}>
+            <div
+              className="progress-bar progress-bar-striped progress-bar-animated"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
 
+          <div className="mt-3">
 
-    return (
+            <small className="text-muted">
 
-        <StudentLayout>
+              {progress === 20 &&
+                "Start by submitting your research topic."}
 
+              {progress === 40 &&
+                "Awaiting supervisor assignment."}
 
-            <h2 className="mb-4">
-                Student Dashboard
-            </h2>
+              {progress === 70 &&
+                "Work with your supervisor and upload your final research."}
 
+              {progress === 100 &&
+                "Congratulations! Your research has been submitted."}
 
+            </small>
 
-            <div className="row">
+          </div>
 
+        </div>
+      </div>
 
-                <DashboardCard
+      {/* Quick Information */}
 
-                    title="Topics Submitted"
+      <div className="row mt-4">
 
-                    value={stats.topics || 0}
+        <div className="col-md-6">
 
-                    icon="📝"
+          <div className="card shadow-sm h-100">
 
-                    color="#0d6efd"
+            <div className="card-header bg-primary text-white">
+              Research Status
+            </div>
 
-                />
+            <div className="card-body">
 
+              <p>
+                <strong>Supervisor:</strong>{" "}
+                {stats.supervisor || "Not Assigned"}
+              </p>
 
+              <p>
+                <strong>Topics Submitted:</strong>{" "}
+                {stats.topics || 0}
+              </p>
 
-                <DashboardCard
-
-                    title="Supervisor"
-
-                    value={stats.supervisor || "Not Assigned"}
-
-                    icon="👨‍🏫"
-
-                    color="#198754"
-
-                />
-
-
-
-                <DashboardCard
-
-                    title="Final Submissions"
-
-                    value={stats.submissions || 0}
-
-                    icon="📄"
-
-                    color="#fd7e14"
-
-                />
-
+              <p>
+                <strong>Final Submission:</strong>{" "}
+                {stats.submissions > 0 ? (
+                  <span className="badge bg-success">
+                    Submitted
+                  </span>
+                ) : (
+                  <span className="badge bg-warning text-dark">
+                    Pending
+                  </span>
+                )}
+              </p>
 
             </div>
 
+          </div>
 
+        </div>
 
-        </StudentLayout>
+        <div className="col-md-6">
 
-    );
+          <div className="card shadow-sm h-100">
 
+            <div className="card-header bg-success text-white">
+              Student Tips
+            </div>
+
+            <div className="card-body">
+
+              <ul className="mb-0">
+
+                <li>Submit unique research topics.</li>
+
+                <li>Check lecturer feedback regularly.</li>
+
+                <li>Communicate with your supervisor.</li>
+
+                <li>Submit your final document before the deadline.</li>
+
+              </ul>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </StudentLayout>
+  );
 }
-
 
 export default Dashboard;

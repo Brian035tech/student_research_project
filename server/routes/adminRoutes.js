@@ -45,6 +45,12 @@ router.get(
     adminController.getFinalSubmissions
 );
 
+router.get(
+    "/report",
+    verifyToken,
+    authorizeRoles("admin"),
+    adminController.downloadReport
+);
 // Admin Profile
 router.get(
     "/profile",
@@ -52,5 +58,6 @@ router.get(
     authorizeRoles("admin"),
     adminController.getProfile
 );
+router.get("/recent-activity", verifyToken, authorizeRoles("admin"), adminController.getRecentActivity);
 
 module.exports = router;

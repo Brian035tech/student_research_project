@@ -5,9 +5,7 @@ import AdminLayout from "../../components/AdminLayout";
 
 function Submissions() {
 
-
     const [submissions, setSubmissions] = useState([]);
-
 
 
     useEffect(() => {
@@ -17,53 +15,41 @@ function Submissions() {
     }, []);
 
 
-
     const fetchSubmissions = async () => {
 
-
         try {
-
 
             const res = await api.get("/admin/submissions");
 
             setSubmissions(res.data);
 
-
         } catch (err) {
-
 
             console.log(err);
 
             alert("Failed to load submissions.");
 
-
         }
-
 
     };
 
 
-
     const formatDate = (date) => {
 
-        if(!date) return "-";
+        if (!date) return "-";
 
         return new Date(date).toLocaleDateString();
 
     };
 
 
-
     return (
 
-
         <AdminLayout>
-
 
             <h2>
                 Final Submissions
             </h2>
-
 
 
             <table
@@ -72,27 +58,24 @@ function Submissions() {
 
                 style={{
 
-                    borderCollapse:"collapse",
-                    marginTop:"20px",
-                    background:"white"
+                    borderCollapse: "collapse",
+                    marginTop: "20px",
+                    background: "white"
 
                 }}
 
             >
 
-
                 <thead>
-
 
                     <tr
 
-                    style={{
-                        background:"#1f2937",
-                        color:"white"
-                    }}
+                        style={{
+                            background: "#1f2937",
+                            color: "white"
+                        }}
 
                     >
-
 
                         <th style={thStyle}>
                             ID
@@ -114,11 +97,14 @@ function Submissions() {
                         </th>
 
 
+                        <th style={thStyle}>
+                            Action
+                        </th>
+
+
                     </tr>
 
-
                 </thead>
-
 
 
                 <tbody>
@@ -126,9 +112,7 @@ function Submissions() {
 
                 {submissions.length > 0 ? (
 
-
-                    submissions.map((submission)=>(
-
+                    submissions.map((submission) => (
 
                         <tr key={submission.id}>
 
@@ -138,25 +122,22 @@ function Submissions() {
                             </td>
 
 
-
                             <td style={tdStyle}>
                                 {submission.full_name}
                             </td>
 
 
-
                             <td style={tdStyle}>
-
 
                                 <span
 
-                                style={{
-                                    background:"#0d6efd",
-                                    color:"white",
-                                    padding:"6px 12px",
-                                    borderRadius:"20px",
-                                    fontSize:"13px"
-                                }}
+                                    style={{
+                                        background: "#0d6efd",
+                                        color: "white",
+                                        padding: "6px 12px",
+                                        borderRadius: "20px",
+                                        fontSize: "13px"
+                                    }}
 
                                 >
 
@@ -168,9 +149,48 @@ function Submissions() {
                             </td>
 
 
-
                             <td style={tdStyle}>
                                 {formatDate(submission.submitted_at)}
+                            </td>
+
+
+                            <td style={tdStyle}>
+
+                                <a
+
+                                    href={submission.download_url}
+
+                                    target="_blank"
+
+                                    rel="noopener noreferrer"
+
+                                    download={submission.file_name}
+
+                                >
+
+                                    <button
+
+                                        style={{
+
+                                            background: "#198754",
+                                            color: "white",
+                                            border: "none",
+                                            padding: "8px 14px",
+                                            borderRadius: "5px",
+                                            cursor: "pointer"
+
+                                        }}
+
+                                    >
+
+                                        ⬇ Download
+
+                                    </button>
+
+
+                                </a>
+
+
                             </td>
 
 
@@ -187,12 +207,12 @@ function Submissions() {
 
                         <td
 
-                        colSpan="4"
+                            colSpan="5"
 
-                        style={{
-                            textAlign:"center",
-                            padding:"20px"
-                        }}
+                            style={{
+                                textAlign: "center",
+                                padding: "20px"
+                            }}
 
                         >
 
@@ -200,11 +220,11 @@ function Submissions() {
 
                         </td>
 
+
                     </tr>
 
 
                 )}
-
 
 
                 </tbody>
@@ -213,12 +233,9 @@ function Submissions() {
             </table>
 
 
-
         </AdminLayout>
 
-
     );
-
 
 }
 
@@ -226,8 +243,8 @@ function Submissions() {
 
 const thStyle = {
 
-    padding:"12px",
-    textAlign:"left"
+    padding: "12px",
+    textAlign: "left"
 
 };
 
@@ -235,8 +252,8 @@ const thStyle = {
 
 const tdStyle = {
 
-    padding:"12px",
-    borderBottom:"1px solid #ddd"
+    padding: "12px",
+    borderBottom: "1px solid #ddd"
 
 };
 

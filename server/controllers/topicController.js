@@ -1,5 +1,6 @@
 const db = require("../config/db");
 
+
 // Student submits a research topic
 exports.createTopic = (req, res) => {
 
@@ -35,29 +36,63 @@ exports.createTopic = (req, res) => {
             });
         }
 
-        // Insert the new topic
-        const sql = `
-            INSERT INTO research_topics
-            (student_id, title, description)
-            VALUES (?, ?, ?)
+        // Check if the topic already exists
+        const duplicateSql = `
+            SELECT id
+            FROM research_topics
+            WHERE LOWER(TRIM(title)) = LOWER(TRIM(?))
         `;
+console.log("Checking duplicate for:", topic_title);
+        db.query(duplicateSql, [topic_title], (err, duplicate) => {
+            console.log("Duplicate query result:", duplicate);
 
-        db.query(
-            sql,
-            [student_id, topic_title, description],
-            (err, result) => {
-
-                if (err) {
-                    return res.status(500).json({
-                        error: err.message
-                    });
-                }
-
-                res.status(201).json({
-                    message: "Research topic submitted successfully."
+            if (err) {
+                return res.status(500).json({
+                    error: err.message
                 });
             }
-        );
+
+            // Duplicate topic found
+            if (duplicate.length > 0) {
+                return res.status(400).json({
+                    message: "This research topic has already been submitted. Please choose a different topic."
+                });
+            }
+
+            // Insert the new topic
+            const insertSql = `
+                INSERT INTO research_topics
+                (student_id, title, description)
+                VALUES (?, ?, ?)
+            `;
+
+            db.query(
+                insertSql,
+                [student_id, topic_title.trim(), description],
+                (err) => {
+
+                    if (err) {
+
+                        // Handle duplicate entry from MySQL
+                        if (err.code === "ER_DUP_ENTRY") {
+                            return res.status(400).json({
+                                message: "This research topic already exists. Please choose a different topic."
+                            });
+                        }
+
+                        return res.status(500).json({
+                            error: err.message
+                        });
+                    }
+
+                    res.status(201).json({
+                        message: "Research topic submitted successfully."
+                    });
+
+                }
+            );
+
+        });
 
     });
 
