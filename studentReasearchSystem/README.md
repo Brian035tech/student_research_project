@@ -228,6 +228,37 @@ Import it using MySQL Workbench:
 
 After the import is complete, configure the `.env` file inside the `server` folder with your MySQL credentials and start the application.
 
+## Screenshots
+
+### Login Page
+
+![Login Page](screenshots/login-page.png)
+
+---
+
+### Student Dashboard
+
+![Student Dashboard](screenshots/student-dashboard.png)
+
+---
+
+### Lecturer Dashboard
+
+![Lecturer Dashboard](screenshots/lecturer-dashboard.png)
+
+---
+
+### Supervisor Dashboard
+
+![Supervisor Dashboard](screenshots/supervisor-dashboard.png)
+
+---
+
+### Admin Dashboard
+
+![Admin Dashboard](screenshots/admin-dashboard.png)
+
+
 ## Future Enhancements
 
 The following features can be added in future versions of the system:
