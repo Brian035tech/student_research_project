@@ -1,131 +1,226 @@
-# Student Research Management System (SRMS)
+# 🎓 Student Research Management System (SRMS)
+
+<p align="center">
+  A web-based platform designed to simplify and automate university research project management.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Frontend-React-blue?logo=react">
+  <img src="https://img.shields.io/badge/Backend-Node.js-green?logo=node.js">
+  <img src="https://img.shields.io/badge/Database-MySQL-orange?logo=mysql">
+  <img src="https://img.shields.io/badge/License-MIT-yellow">
+</p>
 
 The Student Research Management System (SRMS) is a web-based application designed to streamline the management of student research projects within a university. The system enables students to submit research topics, lecturers to review and approve them, supervisors to monitor research progress and provide feedback, and administrators to manage users and oversee the entire research process.
 
 The project was developed using React for the frontend, Node.js and Express for the backend, and MySQL as the database.
 
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [User Roles](#user-roles)
+- [Technology Stack](#technology-stack)
+- [System Architecture](#system-architecture)s
+- [Project Structure](#project-structure)
+- [Installation and Setup](#installation-and-setup)
+- [Running the Application](#running-the-application)
+- [Database Setup](#database-setup)
+- [Screenshots](#screenshots)
+- [Future Enhancements](#future-enhancements)
+- [Author](#author)
+- [License](#license)
+
+
+## Project Overview
+
+The Student Research Management System (SRMS) is a web-based application developed to streamline and automate the management of university student research projects.
+
+The system provides a centralized platform where students can submit research topics, lecturers can review and approve or reject submissions, supervisors can monitor research progress and provide feedback, and administrators can manage users and oversee research activities.
+
+The main goal of SRMS is to improve efficiency, transparency, and communication between students, lecturers, supervisors, and administrators throughout the research lifecycle.
+
+The system was developed using modern web technologies including React.js for the frontend, Node.js and Express.js for the backend, and MySQL for database management.
+
 ## Features
 
-- User authentication using JSON Web Tokens (JWT)
-- Student registration and login
-- Lecturer registration and login
-- Supervisor registration and login
-- Administrator dashboard
-- Research topic submission (maximum of three topics per student)
-- Topic review, approval, and rejection by lecturers
-- Supervisor assignment after topic approval
-- Supervisor feedback and progress monitoring
-- Final research document submission
-- User management by the administrator
-- Dashboard statistics and analytics
-- Responsive and modern user interface
+### 🔐 Authentication and User Management
 
-## User Roles
+- User registration and login system
+- Role-based access control for students, lecturers, supervisors, and administrators
+- Secure password encryption using bcrypt
+- JWT-based authentication for protected routes
 
-### Student
-- Register and log in to the system
-- Submit up to three research topics
-- View topic approval status
-- Receive feedback from lecturers and supervisors
-- Submit the final research document
-- View assigned supervisor
+### 🎓 Student Research Management
 
-### Lecturer
-- Register and log in to the system
+- Students can submit up to three research topics for review
+- Students can track topic approval status
+- Students can view assigned supervisors
+- Students can receive supervisor feedback
+- Students can upload final research submissions
+
+### 👨‍🏫 Lecturer Management
+
 - Review submitted research topics
-- Approve or reject research topics
-- Provide comments and feedback
-- Assign supervisors to approved topics
+- Approve or reject research proposals
+- Provide feedback on submitted topics
+- Assign supervisors to approved research projects
 
-### Supervisor
-- Register and log in to the system
+### 👨‍💼 Supervisor Management
+
 - View assigned students
-- Monitor research progress
-- Provide guidance and feedback
+- Monitor student research progress
+- Provide research guidance and feedback
 
-### Administrator
-- Manage all users
-- View dashboard statistics
+### 🛠️ Administrator Management
+
+- Manage system users
 - Monitor research activities
-- View final submissions
-- Manage the entire system
+- View system statistics through the dashboard
+- Manage final research submissions
+
+### 📊 System Features
+
+- Centralized research data management
+- Responsive user interface
+- Secure database operations
+- Dashboard analytics
+
 
 ## Technology Stack
 
 ### Frontend
-- React.js
-- React Router
-- Axios
-- Bootstrap 5
-- HTML5
-- CSS3
-- JavaScript (ES6+)
+
+- **React.js** - Building the interactive user interface
+- **React Router** - Managing navigation between pages
+- **Axios** - Communicating with backend APIs
+- **CSS / Bootstrap** - Styling and responsive design
 
 ### Backend
-- Node.js
-- Express.js
-- JSON Web Token (JWT)
-- Bcrypt.js
-- Multer
+
+- **Node.js** - Runtime environment
+- **Express.js** - Backend API framework
+- **JWT (JSON Web Token)** - User authentication and authorization
+- **bcrypt** - Password encryption
+- **Multer** - File upload handling
 
 ### Database
-- MySQL
+
+- **MySQL** - Relational database management system
+- **mysql2** - Node.js MySQL database driver
 
 ### Development Tools
-- Visual Studio Code
-- Git
-- GitHub
-- Postman
-- XAMPP
+
+- **Visual Studio Code** - Code editor
+- **Git & GitHub** - Version control and source code management
+- **XAMPP** - Local MySQL database environment
+- **Postman** - API testing
 
 ## System Architecture
 
-The Student Research Management System (SRMS) follows a three-tier architecture consisting of the presentation layer, application layer, and data layer.
+The Student Research Management System follows a three-tier client-server architecture consisting of:
 
-### Presentation Layer
-The presentation layer is developed using React.js and provides user interfaces for students, lecturers, supervisors, and administrators. It allows users to interact with the system through a responsive and user-friendly web application.
+### 1. Presentation Layer (Frontend)
 
-### Application Layer
-The application layer is built with Node.js and Express.js. It handles business logic, user authentication, authorization, topic management, supervisor assignment, feedback processing, and final document submissions. RESTful APIs are used to facilitate communication between the frontend and the backend.
+The frontend is developed using React.js and provides the user interface for all system users:
 
-### Data Layer
-The data layer uses MySQL to securely store user accounts, research topics, supervisor assignments, feedback, and final submissions. The backend communicates with the database to retrieve and update information as required.
+- Students
+- Lecturers
+- Supervisors
+- Administrators
+
+The frontend communicates with the backend through RESTful API requests.
+
+### 2. Application Layer (Backend)
+
+The backend is built using Node.js and Express.js. It handles:
+
+- User authentication and authorization
+- Business logic processing
+- Research topic management
+- Supervisor assignment
+- Feedback management
+- File uploads
+- Communication between frontend and database
+
+### 3. Data Layer (Database)
+
+The system uses MySQL as the database management system for storing:
+
+- User information
+- Research topics
+- Supervisor assignments
+- Feedback records
+- Final research submissions
+
+### System Flow
+
+```
+User
+ |
+ v
+React Frontend
+ |
+ v
+Express.js REST API
+ |
+ v
+Node.js Backend
+ |
+ v
+MySQL Database
+```
+
+This architecture provides separation of concerns, improved maintainability, scalability, and secure management of research information.
 
 ## Project Structure
 
+The project is organized into separate frontend, backend, database, and documentation components.
+
 ```text
-studentResearchSystem/
+student_reseaarch_project/
 │
-├── client/                    # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── layouts/
-│   │   ├── services/
-│   │   ├── App.js
-│   │   └── index.js
-│   ├── package.json
-│   └── README.md
+├── client/                         # React frontend application
+│   ├── public/                     # Static files
+│   ├── src/                        # React components and pages
+│   │   ├── components/             # Reusable UI components
+│   │   ├── pages/                  # Application pages
+│   │   ├── services/               # API communication services
+│   │   └── App.js                  # Main React application
+│   └── package.json                # Frontend dependencies
 │
-├── server/                    # Node.js & Express backend
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── routes/
-│   ├── uploads/
-│   ├── package.json
-│   ├── server.js
-│   └── README.md
+├── server/                         # Node.js backend application
+│   ├── controllers/                # Request handling logic
+│   ├── routes/                     # API routes
+│   ├── middleware/                 # Authentication middleware
+│   ├── config/                     # Database configuration
+│   ├── uploads/                    # Uploaded research files
+│   ├── server.js                   # Backend entry point
+│   └── package.json                # Backend dependencies
 │
-├── database/
+├── database/                       # Database files
 │   └── student_research_management.sql
 │
-├── .gitignore
-└── README.md
+├── screenshots/                    # Application screenshots
+│
+├── README.md                       # Project documentation
+└── .gitignore                      # Ignored files configuration
 ```
 
 ## Installation and Setup
+
+Follow these steps to run the Student Research Management System locally.
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+- Node.js and npm
+- MySQL Server or XAMPP
+- Git
+- Visual Studio Code (recommended)
+
+---
 
 ### 1. Clone the Repository
 
@@ -133,12 +228,7 @@ studentResearchSystem/
 git clone https://github.com/Brian035tech/student_reseaarch_project.git
 ```
 
-Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username.
-
----
-
-### 2. Navigate to the Project Folder
-
+Navigate into the project folder:
 
 ```bash
 cd student_reseaarch_project
@@ -146,89 +236,137 @@ cd student_reseaarch_project
 
 ---
 
-### 3. Install Backend Dependencies
+### 2. Database Setup
 
-```bash
-cd server
-npm install
+1. Open XAMPP and start **MySQL**.
+2. Open phpMyAdmin.
+3. Create a database named:
+
+```sql
+student_research_management
+```
+
+4. Import the database file located in:
+
+```
+database/student_research_management.sql
 ```
 
 ---
 
-### 4. Install Frontend Dependencies
+### 3. Backend Setup
 
-Open a new terminal and run:
-
-```bash
-cd client
-npm install
-```
-
-## Running the Application
-
-### Start the Backend Server
-
-Open a terminal and run:
+Navigate to the server folder:
 
 ```bash
 cd server
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env` file inside the server folder:
+
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=student_research_management
+JWT_SECRET=your_secret_key
+```
+
+Start the backend server:
+
+```bash
 npm start
 ```
 
-The backend server will start on:
+The backend will run on:
 
-```text
+```
 http://localhost:5000
 ```
 
 ---
 
-### Start the Frontend Application
+### 4. Frontend Setup
 
-Open another terminal and run:
+Open another terminal and navigate to the client folder:
 
 ```bash
 cd client
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the React application:
+
+```bash
 npm start
 ```
 
-The frontend application will be available at:
+The frontend will run on:
 
-```text
+```
 http://localhost:3000
 ```
 
+---
+
+The system is now ready to use.
+
+
 ## Database Setup
 
-Before running the application, ensure that MySQL is installed and running.
+The Student Research Management System uses **MySQL** as the database management system.
 
-### 1. Create the Database
+The database contains tables responsible for managing:
+
+- User accounts and roles
+- Research topics
+- Supervisor assignments
+- Research feedback
+- Final research submissions
+
+### Importing the Database
+
+1. Start **MySQL** using XAMPP or your preferred MySQL server.
+2. Open **phpMyAdmin**.
+3. Create a new database:
 
 ```sql
-CREATE DATABASE student_research_management;
+student_research_management
 ```
 
-### 2. Import the Database
+4. Select the created database.
+5. Import the SQL file located at:
 
-The SQL file is located in the `database` folder:
-
-```text
+```
 database/student_research_management.sql
 ```
 
-Import it using MySQL Workbench:
+After successful import, the system will be ready to communicate with the database.
 
-1. Open MySQL Workbench.
-2. Connect to your MySQL server.
-3. Open **Server → Data Import**.
-4. Select **Import from Self-Contained File**.
-5. Browse to `database/student_research_management.sql`.
-6. Choose the `student_research_management` database.
-7. Click **Start Import**.
+### Main Database Tables
 
-After the import is complete, configure the `.env` file inside the `server` folder with your MySQL credentials and start the application.
+| Table | Description |
+|---|---|
+| users | Stores students, lecturers, supervisors, and administrators |
+| research_topics | Stores submitted research topics and approval status |
+| final_submissions | Stores uploaded final research documents |
+| feedback | Stores supervisor and lecturer feedback records |
+
 
 ## Screenshots
+
+The following screenshots demonstrate the main interfaces of the Student Research Management System.
 
 ### Login Page
 
@@ -254,34 +392,37 @@ After the import is complete, configure the `.env` file inside the `server` fold
 
 ---
 
-### Admin Dashboard
+### Administrator Dashboard
 
-![Admin Dashboard](screenshots/admin-dashboard.png)
+![Administrator Dashboard](screenshots/admin-dashboard.png)
 
 
 ## Future Enhancements
 
-The following features can be added in future versions of the system:
+The following improvements can be considered in future versions of the Student Research Management System:
 
-- Email notifications for topic approval and feedback
-- Real-time messaging between students and supervisors
-- Plagiarism detection integration
-- AI-assisted research topic recommendations
-- Research progress tracking with milestones
-- File version control for research documents
-- Advanced reporting and analytics
+- Email notifications for topic approval, rejection, and feedback updates
+- Real-time communication between students and supervisors
 - Mobile application support
+- AI-assisted research topic recommendations
+- Plagiarism detection integration
+- Advanced research progress tracking
+- Research analytics and reporting dashboards
+- Document version control for research submissions
 
 ## Author
 
 **Kipkoech Brian**
 
-- Software Engineering Student
-- University of Eastern Africa, Baraton
-- GitHub: https://github.com/Brian035tech
+Software Engineering Student
+
+Developed as a Student Research Management System project.
+
+GitHub:
+https://github.com/Brian035tech
 
 ## License
 
 This project is licensed under the MIT License.
 
-Feel free to use, modify, and distribute this project for educational and research purposes.
+The source code may be used, modified, and distributed for educational and research purposes.
