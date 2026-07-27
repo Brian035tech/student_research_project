@@ -5,7 +5,7 @@ const verifyToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 const upload = require("../middleware/upload");
 const submissionController = require("../controllers/submissionController");
-console.log(submissionController);
+console.log("Keys:", Object.keys(submissionController));
 console.log("uploadSubmission:", submissionController.uploadSubmission);
 console.log("getSubmission:", submissionController.getSubmission);
 
@@ -25,5 +25,11 @@ router.get(
     authorizeRoles("student"),
     submissionController.getSubmission
 );
-
+// Admin and Supervisor download a submitted file
+router.get(
+    "/download/:id",
+    verifyToken,
+    authorizeRoles("admin", "supervisor"),
+    submissionController.downloadSubmission
+);
 module.exports = router;

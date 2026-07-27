@@ -70,10 +70,9 @@ exports.getDashboardStats = (req, res) => {
 
         if (err) return res.status(500).json(err);
 
-        stats.submissions = submissions[0].submissions;
+      stats.submissions = submissions[0].submissions;
 
-        res.json(stats);
-
+res.json(stats);
     }
 );
 

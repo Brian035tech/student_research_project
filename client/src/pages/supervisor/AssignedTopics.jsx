@@ -20,30 +20,29 @@ function AssignedTopics() {
 
 
 
-    const fetchAssignedTopics = async () => {
+   const fetchAssignedTopics = async () => {
+
+    try {
+
+        const response = await api.get("/topics/assigned");
 
 
-        try {
+        setTopics(response.data);
 
+    }
+    catch (error) {
 
-            const response = await api.get("/topics/assigned");
+    console.log(error);
 
-            setTopics(response.data);
+    alert(
+        error.response?.data?.message ||
+        error.response?.status ||
+        error.message
+    );
 
+}
 
-        } catch(error) {
-
-
-            console.log(error);
-
-
-        }
-
-
-    };
-
-
-
+};
     const submitFeedback = async(topicId)=>{
 
 
@@ -120,8 +119,6 @@ function AssignedTopics() {
 
         }
 
-
-
         return (
 
             <span
@@ -151,6 +148,41 @@ function AssignedTopics() {
 
     };
 
+    const downloadSubmission = async (id, fileName) => {
+
+    try {
+
+        const response = await api.get(
+            `/submissions/download/${id}`,
+            {
+                responseType: "blob"
+            }
+        );
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+        console.log(error);
+
+        alert("Download failed.");
+
+    }
+
+};
 
 
     return (
@@ -222,6 +254,10 @@ function AssignedTopics() {
                     Status
                 </th>
 
+                <th style={th}>
+    Submission
+</th>
+
 
                 <th style={th}>
                     Feedback
@@ -276,7 +312,29 @@ function AssignedTopics() {
                             {statusBadge(topic.status)}
                         </td>
 
+<td style={td}>
 
+    {topic.file_name ? (
+
+        <button
+            style={buttonStyle}
+            onClick={() =>
+                downloadSubmission(
+    topic.submission_id,
+    topic.file_name
+)
+            }
+        >
+            ⬇ Download
+        </button>
+
+    ) : (
+
+        <span>No Submission</span>
+
+    )}
+
+</td>
 
                         <td style={td}>
 

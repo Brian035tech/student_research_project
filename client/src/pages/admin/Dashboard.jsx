@@ -36,13 +36,16 @@ function Dashboard() {
     }, []);
 
     const fetchStats = async () => {
-        try {
-            const response = await api.get("/admin/dashboard");
-            setStats(response.data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    try {
+        const response = await api.get("/admin/dashboard");
+
+        console.log("Dashboard Response:", response.data);
+
+        setStats(response.data);
+    } catch (error) {
+        console.error("Dashboard Error:", error);
+    }
+};
 
     const fetchActivities = async () => {
         try {

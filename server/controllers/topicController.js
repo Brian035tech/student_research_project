@@ -301,26 +301,35 @@ const { status, supervisor_id, lecturer_comment } = req.body;
 
 };
 // Supervisor views assigned topics
-// Supervisor views assigned topics
 exports.getAssignedTopics = (req, res) => {
 
     const supervisor_id = req.user.id;
 
     const sql = `
         SELECT
+
             research_topics.id,
             research_topics.title,
             research_topics.description,
             research_topics.status,
+            research_topics.supervisor_feedback,
             research_topics.created_at,
 
+            students.id AS student_id,
             students.full_name,
-            students.email
+            students.email,
+
+            final_submissions.id AS submission_id,
+final_submissions.file_name,
+final_submissions.submitted_at
 
         FROM research_topics
 
         JOIN users AS students
-        ON research_topics.student_id = students.id
+            ON research_topics.student_id = students.id
+
+        LEFT JOIN final_submissions
+            ON research_topics.student_id = final_submissions.student_id
 
         WHERE research_topics.supervisor_id = ?
 
@@ -335,7 +344,7 @@ exports.getAssignedTopics = (req, res) => {
             });
         }
 
-        res.status(200).json(results);
+        res.json(results);
 
     });
 
@@ -406,7 +415,7 @@ exports.getAssignedSupervisor = (req, res) => {
                 message: "No supervisor assigned yet."
             });
         }
-
+        
         res.json(results[0]);
     });
 };

@@ -68,7 +68,35 @@ function Submissions() {
 
     );
 
+const downloadSubmission = async (id, fileName) => {
+    try {
+        const response = await api.get(
+            `/submissions/download/${id}`,
+            {
+                responseType: "blob"
+            }
+        );
 
+        const url = window.URL.createObjectURL(
+            new Blob([response.data])
+        );
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+        link.click();
+
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error(error);
+        alert("Failed to download file.");
+    }
+};
 
     return (
 
@@ -262,30 +290,17 @@ function Submissions() {
             <td>
 
 
-                <a
-
-                href={submission.download_url}
-
-                target="_blank"
-
-                rel="noopener noreferrer"
-
-                download={submission.file_name}
-
-                >
-
-                <button
-
-                className="btn btn-success btn-sm"
-
-                >
-
-                    ⬇ Download
-
-                </button>
-
-
-                </a>
+               <button
+    className="btn btn-success btn-sm"
+    onClick={() =>
+        downloadSubmission(
+            submission.id,
+            submission.file_name
+        )
+    }
+>
+    ⬇ Download
+</button>
 
 
             </td>

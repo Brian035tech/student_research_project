@@ -50,12 +50,12 @@ exports.getDashboardStats = (req, res) => {
 
 
                     db.query(
-                        `
-                        SELECT COUNT(*) AS submissions
-                        FROM submissions
-                        WHERE student_id = ?
-                        `,
-                        [studentId],
+    `
+    SELECT COUNT(*) AS submissions
+    FROM final_submissions
+    WHERE student_id = ?
+    `,
+    [studentId],
 
                         (err, submissions) => {
 
