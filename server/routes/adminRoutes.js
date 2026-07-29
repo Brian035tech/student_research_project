@@ -22,6 +22,13 @@ router.get(
     adminController.getAllUsers
 );
 
+// Admin updates a user's role
+router.put(
+    "/users/:id/role",
+    verifyToken,
+    authorizeRoles("admin"),
+    adminController.updateUserRole
+);
 router.delete(
     "/users/:id",
     verifyToken,

@@ -4,10 +4,13 @@ const jwt = require("jsonwebtoken");
 
 // Register User
 exports.register = async (req, res) => {
-    const { full_name, email, password, role } = req.body;
+  const { full_name, email, password } = req.body;
+
+// Every self-registration is a student
+const role = "student";
 
     // Validate input
-    if (!full_name || !email || !password || !role) {
+    if (!full_name || !email || !password) {
         return res.status(400).json({
             message: "All fields are required."
         });

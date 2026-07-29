@@ -118,6 +118,83 @@ exports.getAllUsers = (req, res) => {
 
 };
 
+
+/* ===========================
+   Update User Role
+=========================== */
+
+exports.updateUserRole = (req, res) => {
+
+    const userId = req.params.id;
+    const { role } = req.body;
+
+    const allowedRoles = [
+        "student",
+        "lecturer",
+        "supervisor",
+        "admin"
+    ];
+
+    if (!allowedRoles.includes(role)) {
+
+        return res.status(400).json({
+            message: "Invalid user role."
+        });
+
+    }
+
+    // Prevent an admin from changing their own role
+    if (Number(userId) === Number(req.user.id)) {
+
+        return res.status(400).json({
+            message: "You cannot change your own role."
+        });
+
+    }
+
+    const sql = `
+        UPDATE users
+        SET role = ?
+        WHERE id = ?
+    `;
+
+    db.query(
+        sql,
+        [role, userId],
+        (err, result) => {
+
+            if (err) {
+
+                console.log(
+                    "Role update error:",
+                    err
+                );
+
+                return res.status(500).json({
+                    message:
+                        "Failed to update user role."
+                });
+
+            }
+
+            if (result.affectedRows === 0) {
+
+                return res.status(404).json({
+                    message: "User not found."
+                });
+
+            }
+
+            res.json({
+                message:
+                    `User role updated to ${role}.`
+            });
+
+        }
+    );
+
+};
+
 /* ===========================
    Delete User
 =========================== */

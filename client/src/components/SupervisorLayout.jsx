@@ -37,6 +37,17 @@ function SupervisorLayout({ children }) {
         },
 
         {
+    label: "Proposal Review",
+    path: "/supervisor/proposals",
+    icon: "📝"
+},
+
+{
+    label: "Final Draft Reviews",
+    path: "/supervisor/final-drafts",
+    icon: "📄"
+},
+        {
             label: "My Profile",
             path: "/supervisor/profile",
             icon: "👤"

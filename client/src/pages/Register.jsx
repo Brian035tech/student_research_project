@@ -6,11 +6,10 @@ function Register() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    password: "",
-    role: "",
-  });
+  full_name: "",
+  email: "",
+  password: "",
+});
 
   const [message, setMessage] = useState("");
 
@@ -101,19 +100,6 @@ function Register() {
             onChange={handleChange}
             style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
           />
-
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            style={{ width: "100%", padding: "10px", marginBottom: "20px" }}
-          >
-            <option value="">Select Role</option>
-            <option value="student">Student</option>
-            <option value="lecturer">Lecturer</option>
-            <option value="supervisor">Supervisor</option>
-            <option value="admin">Admin</option>
-          </select>
 
           <button
             type="submit"

@@ -41,20 +41,24 @@ function FinalSubmission() {
     // Load student's submission
     const loadSubmission = async () => {
 
-        try {
+    try {
 
-            const res = await api.get("/submissions");
+        const res = await api.get("/submissions");
 
-            if (res.data.length > 0) {
-                setSubmission(res.data[0]);
-            }
+        setSubmission(res.data || null);
 
-        } catch (err) {
-            console.log(err);
-        }
+    } catch (err) {
 
-    };
+        console.log(
+            "Error loading final submission:",
+            err
+        );
 
+        setSubmission(null);
+
+    }
+
+};
     // Upload project
     const submitProject = async (e) => {
 
@@ -92,19 +96,33 @@ function FinalSubmission() {
 
             document.getElementById("fileInput").value = "";
 
-        } catch (err) {
+       } catch (err) {
 
-            console.log(err);
+    console.log(
+        "Final submission error:",
+        err
+    );
 
-            setMessage(
-                "❌ " +
-                (
-                    err.response?.data?.message ||
-                    "Upload failed."
-                )
-            );
+    console.log(
+        "Server response:",
+        err.response?.data
+    );
 
-        }
+    console.log(
+        "Status code:",
+        err.response?.status
+    );
+
+    setMessage(
+        "❌ " +
+        (
+            err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Upload failed."
+        )
+    );
+
+}
 
     };
 
@@ -142,23 +160,67 @@ function FinalSubmission() {
                                 Your final research has already been submitted successfully.
                             </p>
 
-                            <div className="card mt-4 p-4 bg-light">
+                          <div className="card mt-4 p-4 bg-light">
 
-                                <p>
-                                    <strong>📄 File:</strong><br />
-                                    {submission.file_name}
-                                </p>
+    <p>
+        <strong>📄 File:</strong><br />
+        {submission.file_name}
+    </p>
 
-                                <p>
-                                    <strong>📅 Submission Date:</strong><br />
-                                    {new Date(submission.submitted_at).toLocaleString()}
-                                </p>
+    <p>
+        <strong>📅 Submission Date:</strong><br />
+        {new Date(submission.submitted_at).toLocaleString()}
+    </p>
 
-                                <span className="badge bg-success fs-6">
-                                    Submitted
-                                </span>
+    <p>
+        <strong>Review Status:</strong><br />
 
-                            </div>
+        <span
+            className={
+                submission.status === "Lecturer Approved"
+                    ? "badge bg-success fs-6"
+                    : submission.status === "Supervisor Approved"
+                    ? "badge bg-primary fs-6"
+                    : submission.status === "Revision Required"
+                    ? "badge bg-warning text-dark fs-6"
+                    : "badge bg-secondary fs-6"
+            }
+        >
+            {submission.status}
+        </span>
+    </p>
+
+{submission.status === "Revision Required" && (
+
+    <button
+        type="button"
+        className="btn btn-warning mt-3"
+        onClick={() => {
+            setSubmission(null);
+            setMessage("");
+        }}
+    >
+        🔄 Resubmit Final Draft
+    </button>
+
+)}
+    {submission.supervisor_feedback && (
+
+        <div className="alert alert-warning mt-4">
+
+            <strong>
+                👨‍🏫 Supervisor Feedback:
+            </strong>
+
+            <br />
+
+            {submission.supervisor_feedback}
+
+        </div>
+
+    )}
+
+</div>
 
                         </div>
 

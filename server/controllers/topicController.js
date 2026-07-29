@@ -108,19 +108,20 @@ exports.getTopics = (req, res) => {
     // Students can only see their own topics
     if (req.user.role === "student") {
 
-        sql = `
-            SELECT
-                id,
-                title,
-                description,
-                status,
-                lecturer_comment,
-                supervisor_feedback,
-                created_at
-            FROM research_topics
-            WHERE student_id = ?
-            ORDER BY created_at DESC
-        `;
+       sql = `
+    SELECT
+        id,
+        title,
+        description,
+        status,
+        supervisor_id,
+        lecturer_comment,
+        supervisor_feedback,
+        created_at
+    FROM research_topics
+    WHERE student_id = ?
+    ORDER BY created_at DESC
+`;
 
         params = [req.user.id];
 

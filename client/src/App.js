@@ -15,16 +15,20 @@ import MyTopics from "./pages/student/MyTopics";
 import Supervisor from "./pages/student/Supervisor";
 import Feedback from "./pages/student/Feedback";
 import FinalSubmission from "./pages/student/FinalSubmission";
+import ProposalSubmission from "./pages/student/ProposalSubmission";
 import Profile from "./pages/student/Profile";
 import ManageTopics from "./pages/lecturer/ManageTopics";
 import AssignSupervisors from "./pages/lecturer/AssignSupervisors";
 import AssignedTopics from "./pages/supervisor/AssignedTopics";
 import SupervisorFeedback from "./pages/supervisor/Feedback";
+import SupervisorProposals from "./pages/supervisor/SupervisorProposals";
 import SupervisorProfile from "./pages/supervisor/Profile";
 import Topics from "./pages/admin/Topics";
 import Submissions from "./pages/admin/Submissions";
 import AdminProfile from "./pages/admin/Profile";
 import ManageUsers from "./pages/admin/ManageUsers";
+import FinalDraftReview from "./pages/supervisor/FinalDraftReview";
+import FinalDraftReviews from "./pages/lecturer/FinalDraftReviews";
 
 function App() {
   return (
@@ -43,6 +47,10 @@ function App() {
         <Route path="/student/feedback" element={<Feedback />} />
         <Route path="/student/final" element={<FinalSubmission />} />
         <Route path="/student/profile" element={<Profile />} />
+        <Route
+    path="/student/proposal-submission"
+    element={<ProposalSubmission />}
+/>
 
         {/* Supervisor */}
         <Route path="/supervisor" element={<SupervisorDashboard />} />
@@ -50,12 +58,24 @@ function App() {
         <Route path="/supervisor/feedback" element={<SupervisorFeedback />} />
         <Route path="/supervisor/profile" element={<SupervisorProfile />} />
 
+<Route
+    path="/supervisor/proposals"
+    element={<SupervisorProposals />}
+/>
+<Route
+ path="/supervisor/final-drafts"
+ element={<FinalDraftReview />}
+/>
         {/* Lecturer */}
         <Route path="/lecturer" element={<LecturerDashboard />} />
         <Route path="/lecturer/profile" element={<Profile />} />
         <Route path="/lecturer/topics" element={<ManageTopics />} />
         <Route path="/lecturer/assign" element={<AssignSupervisors />} />
 
+<Route
+    path="/lecturer/final-drafts"
+    element={<FinalDraftReviews />}
+/>
         {/* Admin */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />

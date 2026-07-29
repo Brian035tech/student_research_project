@@ -31,6 +31,11 @@ function LecturerLayout({ children }) {
         },
 
         {
+    label: "Final Draft Reviews",
+    path: "/lecturer/final-drafts",
+    icon: "📄"
+},
+        {
             label: "Assign Supervisors",
             path: "/lecturer/assign",
             icon: "👨‍🏫"

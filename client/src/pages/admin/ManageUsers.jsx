@@ -6,6 +6,7 @@ function ManageUsers() {
 
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         fetchUsers();
@@ -56,6 +57,38 @@ function ManageUsers() {
 
     };
 
+    const updateUserRole = async (id, role) => {
+
+    try {
+
+        const res = await api.put(
+            `/admin/users/${id}/role`,
+            {
+                role: role
+            }
+        );
+
+        setMessage(
+            "✅ " + res.data.message
+        );
+
+        fetchUsers();
+
+    } catch (err) {
+
+        console.log(err);
+
+        setMessage(
+            "❌ " +
+            (
+                err.response?.data?.message ||
+                "Failed to update user role."
+            )
+        );
+
+    }
+
+};
 
     const roleBadge = (role) => {
 
@@ -201,6 +234,23 @@ function ManageUsers() {
                     />
 
 
+                    {message && (
+
+    <div
+        className={
+            message.includes("❌")
+                ? "alert alert-danger"
+                : "alert alert-success"
+        }
+    >
+
+        {message}
+
+    </div>
+
+)}
+
+
 
 
                     <div className="table-responsive">
@@ -219,9 +269,11 @@ function ManageUsers() {
 
                                     <th>Email</th>
 
-                                    <th>Role</th>
+                                    <th>Current Role</th>
 
-                                    <th>Status</th>
+<th>Change Role</th>
+
+<th>Status</th>
 
                                     <th>Action</th>
 
@@ -273,6 +325,44 @@ function ManageUsers() {
 
                                     </td>
 
+<td>
+
+    {user.role === "admin" ? (
+
+        <span className="text-muted fw-bold">
+            Protected
+        </span>
+
+    ) : (
+
+        <select
+            className="form-select form-select-sm"
+            value={user.role}
+            onChange={(e) =>
+                updateUserRole(
+                    user.id,
+                    e.target.value
+                )
+            }
+        >
+
+            <option value="student">
+                🎓 Student
+            </option>
+
+            <option value="supervisor">
+                📚 Supervisor
+            </option>
+
+            <option value="lecturer">
+                👨‍🏫 Lecturer
+            </option>
+
+        </select>
+
+    )}
+
+</td>
 
 
                                     <td>
@@ -345,7 +435,7 @@ function ManageUsers() {
                                 <tr>
 
                                     <td 
-                                    colSpan="6"
+                                    colSpan="7"
                                     className="text-center py-5 text-muted"
                                     >
 

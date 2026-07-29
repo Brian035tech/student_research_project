@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const path = require("path");
 // Student uploads final project
+// Student uploads or resubmits final project
 exports.uploadSubmission = (req, res) => {
 
     console.log("========== UPLOAD ==========");
@@ -11,78 +12,169 @@ exports.uploadSubmission = (req, res) => {
     const student_id = req.user.id;
     const { topic_id } = req.body;
 
+    // Check topic
     if (!topic_id) {
+
         return res.status(400).json({
             message: "Topic is required."
         });
+
     }
 
+    // Check uploaded file
     if (!req.file) {
+
         return res.status(400).json({
             message: "Please upload a file."
         });
+
     }
 
-    // ✅ Check if the topic is approved
+    // Check that the topic is approved
+    const topicSql = `
+        SELECT id
+        FROM research_topics
+        WHERE id = ?
+        AND student_id = ?
+        AND status = 'Approved'
+    `;
+
     db.query(
-        `SELECT id
-         FROM research_topics
-         WHERE id = ?
-         AND student_id = ?
-         AND status = 'Approved'`,
+        topicSql,
         [topic_id, student_id],
-        (err, topic) => {
+        (topicError, topicResults) => {
 
-            if (err) {
+            if (topicError) {
+
                 return res.status(500).json({
-                    error: err.message
+                    error: topicError.message
                 });
+
             }
 
-            if (topic.length === 0) {
+            if (topicResults.length === 0) {
+
                 return res.status(400).json({
-                    message: "Only approved research topics can be submitted."
+                    message:
+                        "Only approved research topics can be submitted."
                 });
+
             }
 
-            // ✅ Check if the student has already submitted
+            // Check whether the student already has a submission
+            const submissionSql = `
+                SELECT id, status
+                FROM final_submissions
+                WHERE student_id = ?
+            `;
+
             db.query(
-                "SELECT id FROM final_submissions WHERE student_id = ?",
+                submissionSql,
                 [student_id],
-                (err, results) => {
+                (submissionError, submissionResults) => {
 
-                    if (err) {
+                    if (submissionError) {
+
                         return res.status(500).json({
-                            error: err.message
+                            error: submissionError.message
                         });
+
                     }
 
-                    if (results.length > 0) {
-                        return res.status(400).json({
-                            message: "You have already submitted your final research."
-                        });
+                    // Student already has a submission
+                    if (submissionResults.length > 0) {
+
+                        const existingSubmission =
+                            submissionResults[0];
+
+                        // Only allow resubmission after revision is requested
+                        if (
+                            existingSubmission.status !==
+                            "Revision Required"
+                        ) {
+
+                            return res.status(400).json({
+                                message:
+                                    "Your final project is already submitted and is awaiting review."
+                            });
+
+                        }
+
+                        // Update the old record with the corrected file
+                        const updateSql = `
+    UPDATE final_submissions
+    SET
+        file_name = ?,
+        submitted_at = CURRENT_TIMESTAMP,
+        status = 'Pending Supervisor Review',
+        supervisor_feedback = NULL,
+        supervisor_reviewed_by = NULL
+    WHERE id = ?
+`;
+
+                        db.query(
+                            updateSql,
+                            [
+                                req.file.filename,
+                                existingSubmission.id
+                            ],
+                            (updateError) => {
+
+                                if (updateError) {
+
+                                    return res.status(500).json({
+                                        error:
+                                            updateError.message
+                                    });
+
+                                }
+
+                                return res.status(200).json({
+                                    message:
+                                        "Corrected final draft resubmitted successfully."
+                                });
+
+                            }
+                        );
+
+                        return;
+
                     }
 
-                    // ✅ Save the submission
-                    const sql = `
+                    // No previous submission: create a new record
+                    const insertSql = `
                         INSERT INTO final_submissions
-                        (topic_id, student_id, file_name)
-                        VALUES (?, ?, ?)
+                        (
+                            topic_id,
+                            student_id,
+                            file_name,
+                            status
+                        )
+                        VALUES (?, ?, ?, ?, ?)
                     `;
 
                     db.query(
-                        sql,
-                        [topic_id, student_id, req.file.filename],
-                        (err) => {
+                        insertSql,
+                        [
+                            topic_id,
+                            student_id,
+                            req.file.filename,
+                            "Pending Supervisor Review"
+                        ],
+                        (insertError) => {
 
-                            if (err) {
+                            if (insertError) {
+
                                 return res.status(500).json({
-                                    error: err.message
+                                    error:
+                                        insertError.message
                                 });
+
                             }
 
-                            res.status(201).json({
-                                message: "Final project submitted successfully."
+                            return res.status(201).json({
+                                message:
+                                    "Final project submitted successfully."
                             });
 
                         }
@@ -116,9 +208,233 @@ exports.getSubmission = (req, res) => {
             });
         }
 
+        res.json(results[0] || null);
+
+    });
+
+};
+
+// Supervisor views final drafts waiting for review
+exports.getSupervisorSubmissions = (req, res) => {
+
+    const supervisor_id = req.user.id;
+
+    const sql = `
+        SELECT 
+            fs.id,
+            fs.file_name,
+            fs.submitted_at,
+            fs.status,
+            fs.supervisor_feedback,
+            u.full_name,
+            rt.title
+        FROM final_submissions fs
+        JOIN users u
+            ON fs.student_id = u.id
+        JOIN research_topics rt
+            ON fs.topic_id = rt.id
+        WHERE rt.supervisor_id = ?
+        AND fs.status = 'Pending Supervisor Review'
+        ORDER BY fs.submitted_at DESC
+    `;
+
+
+    db.query(sql, [supervisor_id], (err, results)=>{
+
+        if(err){
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+
         res.json(results);
 
     });
+
+};
+
+// Supervisor approves final draft
+exports.approveFinalDraft = (req,res)=>{
+
+    const submissionId = req.params.id;
+    const supervisor_id = req.user.id;
+    const {feedback} = req.body;
+
+
+    const sql = `
+        UPDATE final_submissions
+        SET 
+        status='Supervisor Approved',
+        supervisor_feedback=?,
+        supervisor_reviewed_by=?
+        WHERE id=?
+    `;
+
+
+    db.query(
+        sql,
+        [
+            feedback || "Final draft approved.",
+            supervisor_id,
+            submissionId
+        ],
+        err=>{
+
+            if(err){
+                return res.status(500).json({
+                    error:err.message
+                });
+            }
+
+
+            res.json({
+                message:"Final draft approved by supervisor."
+            });
+
+        }
+    );
+
+};
+exports.requestRevision = (req,res)=>{
+
+    const submissionId = req.params.id;
+    const supervisor_id = req.user.id;
+    const {feedback} = req.body;
+
+
+    const sql = `
+        UPDATE final_submissions
+        SET
+        status='Revision Required',
+        supervisor_feedback=?,
+        supervisor_reviewed_by=?
+        WHERE id=?
+    `;
+
+
+    db.query(
+        sql,
+        [
+            feedback,
+            supervisor_id,
+            submissionId
+        ],
+        err=>{
+
+            if(err){
+                return res.status(500).json({
+                    error:err.message
+                });
+            }
+
+
+            res.json({
+                message:"Revision requested."
+            });
+
+        }
+    );
+
+};
+
+// Lecturer views final drafts approved by supervisors
+exports.getLecturerSubmissions = (req, res) => {
+
+    const sql = `
+        SELECT
+            fs.id,
+            fs.topic_id,
+            fs.student_id,
+            fs.file_name,
+            fs.submitted_at,
+            fs.status,
+            fs.supervisor_feedback,
+            u.full_name AS student_name,
+            rt.title AS topic_title
+        FROM final_submissions fs
+        JOIN users u
+            ON fs.student_id = u.id
+        JOIN research_topics rt
+            ON fs.topic_id = rt.id
+        WHERE fs.status = 'Supervisor Approved'
+        ORDER BY fs.submitted_at DESC
+    `;
+
+    db.query(sql, (err, results) => {
+
+        if (err) {
+
+            console.log(
+                "Lecturer submissions error:",
+                err
+            );
+
+            return res.status(500).json({
+                message:
+                    "Failed to load final drafts.",
+                error: err.message
+            });
+
+        }
+
+        res.json(results);
+
+    });
+
+};
+
+
+// Lecturer approves the final draft
+exports.approveByLecturer = (req, res) => {
+
+    const submissionId = req.params.id;
+    const lecturerId = req.user.id;
+
+    const sql = `
+        UPDATE final_submissions
+        SET
+            status = 'Lecturer Approved',
+            lecturer_feedback = ?,
+            lecturer_reviewed_by = ?
+        WHERE id = ?
+        AND status = 'Supervisor Approved'
+    `;
+
+    db.query(
+        sql,
+        [
+            "Final research project approved by lecturer.",
+            lecturerId,
+            submissionId
+        ],
+        (err, result) => {
+
+            if (err) {
+
+                return res.status(500).json({
+                    message:
+                        "Failed to approve final draft.",
+                    error: err.message
+                });
+
+            }
+
+            if (result.affectedRows === 0) {
+
+                return res.status(404).json({
+                    message:
+                        "Final draft was not found or is not ready for lecturer review."
+                });
+
+            }
+
+            res.json({
+                message:
+                    "Final draft approved successfully."
+            });
+
+        }
+    );
 
 };
 // Admin/Supervisor downloads a submitted file
