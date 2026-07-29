@@ -3,6 +3,8 @@ const feedbackRoutes = require("./routes/feedbackRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 const lecturerRoutes = require("./routes/lecturerRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
+const proposalRoutes = require("./routes/proposalRoutes");
+
 require("dotenv").config();
 require("./config/db");
 
@@ -30,6 +32,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/lecturer", lecturerRoutes);
 app.use("/api/submissions", submissionRoutes);
+app.use("/api/proposals", proposalRoutes);
 // Start server
 const PORT = process.env.PORT || 5000;
 

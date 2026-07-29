@@ -2,19 +2,19 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Register User
 exports.register = async (req, res) => {
-    const { full_name, email, password, role } = req.body;
+    const { full_name, email, password } = req.body;
 
-    // Validate input
-    if (!full_name || !email || !password || !role) {
+    // Every self-registration is a student
+    const role = "student";
+
+    if (!full_name || !email || !password) {
         return res.status(400).json({
             message: "All fields are required."
         });
     }
 
     try {
-        // Check if email already exists
         db.query(
             "SELECT * FROM users WHERE email = ?",
             [email],
@@ -31,14 +31,12 @@ exports.register = async (req, res) => {
                     });
                 }
 
-                // Hash password
                 const hashedPassword = await bcrypt.hash(password, 10);
 
-                // Insert user into database
                 db.query(
                     "INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)",
                     [full_name, email, hashedPassword, role],
-                    (err, result) => {
+                    (err) => {
                         if (err) {
                             return res.status(500).json({
                                 error: err.message
