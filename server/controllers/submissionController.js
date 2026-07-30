@@ -150,7 +150,7 @@ exports.uploadSubmission = (req, res) => {
                             file_name,
                             status
                         )
-                        VALUES (?, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?)
                     `;
 
                     db.query(
