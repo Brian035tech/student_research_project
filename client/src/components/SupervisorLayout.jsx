@@ -31,6 +31,11 @@ function SupervisorLayout({ children }) {
         },
 
         {
+  label: "Concept Papers",
+  icon: "📑",
+  path: "/supervisor/concept-papers"
+},
+        {
             label: "Give Feedback",
             path: "/supervisor/feedback",
             icon: "💬"

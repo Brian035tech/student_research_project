@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import StudentLayout from "../../components/StudentLayout";
 import DashboardCard from "../../components/DashboardCard";
 
 function Dashboard() {
+  
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const [stats, setStats] = useState({});
 
   useEffect(() => {
@@ -19,21 +24,16 @@ function Dashboard() {
     }
   };
 
-  // Calculate progress
-  let progress = 20;
-
-  if (stats.topics > 0) progress = 40;
-  if (stats.supervisor && stats.supervisor !== "Not Assigned") progress = 70;
-  if (stats.submissions > 0) progress = 100;
-
+  // Research progress from backend
+let progress = stats.progress || 20;
   return (
     <StudentLayout>
       {/* Welcome */}
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
           <h2 className="fw-bold">
-            Welcome 👋
-          </h2>
+  Welcome, {user?.full_name} 👋
+</h2>
 
           <p className="text-muted mb-1">
             Student Research Management System
@@ -45,30 +45,81 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* Student Information */}
+
+<div className="card shadow-sm border-0 mb-4">
+
+  <div className="card-header bg-primary text-white">
+    Student Information
+  </div>
+
+  <div className="card-body">
+
+    <div className="row">
+
+      <div className="col-md-6 mb-3">
+        <strong>Name:</strong>
+        <p>{stats.student_name}</p>
+      </div>
+
+
+      <div className="col-md-6 mb-3">
+        <strong>Student ID:</strong>
+        <p>{stats.student_id}</p>
+      </div>
+
+
+      <div className="col-md-6 mb-3">
+        <strong>School:</strong>
+        <p>{stats.school}</p>
+      </div>
+
+
+      <div className="col-md-6 mb-3">
+        <strong>Department:</strong>
+        <p>{stats.department}</p>
+      </div>
+
+
+      <div className="col-md-12">
+        <strong>Course:</strong>
+        <p>{stats.course}</p>
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>
+
       {/* Dashboard Cards */}
 
       <div className="row">
 
-        <DashboardCard
-          title="Topics Submitted"
-          value={stats.topics || 0}
-          icon="📝"
-          color="#0d6efd"
-        />
+       <DashboardCard
+  title="Topics Submitted"
+  value={stats.topics || 0}
+  icon="📝"
+  color="#0d6efd"
+  onClick={() => navigate("/student/mytopics")}
+/>
 
-        <DashboardCard
-          title="Supervisor"
-          value={stats.supervisor || "Not Assigned"}
-          icon="👨‍🏫"
-          color="#198754"
-        />
+<DashboardCard
+  title="Supervisor"
+  value={stats.supervisor || "Not Assigned"}
+  icon="👨‍🏫"
+  color="#198754"
+  onClick={() => navigate("/student/supervisor")}
+/>
 
-        <DashboardCard
-          title="Final Submission"
-          value={stats.submissions || 0}
-          icon="📄"
-          color="#fd7e14"
-        />
+<DashboardCard
+  title="Final Submission"
+  value={stats.submissions || 0}
+  icon="📄"
+  color="#fd7e14"
+  onClick={() => navigate("/student/final")}
+/>
 
       </div>
 
@@ -105,12 +156,11 @@ function Dashboard() {
               {progress === 40 &&
                 "Awaiting supervisor assignment."}
 
-              {progress === 70 &&
-                "Work with your supervisor and upload your final research."}
+              {progress < 100 &&
+"Continue working with your supervisor and submit the next research draft."}
 
-              {progress === 100 &&
-                "Congratulations! Your research has been submitted."}
-
+{progress === 100 &&
+"Congratulations! Your research has been fully approved."}
             </small>
 
           </div>

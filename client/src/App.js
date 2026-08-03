@@ -17,16 +17,19 @@ import Feedback from "./pages/student/Feedback";
 import FinalSubmission from "./pages/student/FinalSubmission";
 import ProposalSubmission from "./pages/student/ProposalSubmission";
 import Profile from "./pages/student/Profile";
+import ConceptPaper from "./pages/student/ConceptPaper";
 import ManageTopics from "./pages/lecturer/ManageTopics";
 import AssignSupervisors from "./pages/lecturer/AssignSupervisors";
 import AssignedTopics from "./pages/supervisor/AssignedTopics";
 import SupervisorFeedback from "./pages/supervisor/Feedback";
 import SupervisorProposals from "./pages/supervisor/SupervisorProposals";
+import ConceptPapers from "./pages/supervisor/ConceptPapers";
 import SupervisorProfile from "./pages/supervisor/Profile";
 import Topics from "./pages/admin/Topics";
 import Submissions from "./pages/admin/Submissions";
 import AdminProfile from "./pages/admin/Profile";
 import ManageUsers from "./pages/admin/ManageUsers";
+import Reports from "./pages/admin/Reports";
 import FinalDraftReview from "./pages/supervisor/FinalDraftReview";
 import FinalDraftReviews from "./pages/lecturer/FinalDraftReviews";
 
@@ -51,7 +54,10 @@ function App() {
     path="/student/proposal-submission"
     element={<ProposalSubmission />}
 />
-
+<Route
+  path="/student/concept-paper"
+  element={<ConceptPaper />}
+/>
         {/* Supervisor */}
         <Route path="/supervisor" element={<SupervisorDashboard />} />
         <Route path="/supervisor/topics" element={<AssignedTopics />} />
@@ -65,6 +71,11 @@ function App() {
 <Route
  path="/supervisor/final-drafts"
  element={<FinalDraftReview />}
+/>
+
+<Route
+  path="/supervisor/concept-papers"
+  element={<ConceptPapers />}
 />
         {/* Lecturer */}
         <Route path="/lecturer" element={<LecturerDashboard />} />
@@ -83,7 +94,7 @@ function App() {
         <Route path="/admin/submissions" element={<Submissions />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
         <Route path="/admin/users" element={<ManageUsers />} />
-
+<Route path="/admin/reports" element={<Reports />} />
       </Routes>
 
       {/* Toast Notifications */}

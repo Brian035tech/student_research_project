@@ -2,10 +2,12 @@ const db = require("../config/db");
 
 
 // Student submits a research topic
+// Student submits a research topic
 exports.createTopic = (req, res) => {
 
     const { topic_title, description } = req.body;
-    const student_id = req.user.id;
+    const user_id = req.user.id;
+
 
     // Validate input
     if (!topic_title || !description) {
@@ -14,37 +16,12 @@ exports.createTopic = (req, res) => {
         });
     }
 
-    // Check how many topics the student has already submitted
-    const checkSql = `
-        SELECT COUNT(*) AS total
-        FROM research_topics
-        WHERE student_id = ?
-    `;
 
-    db.query(checkSql, [student_id], (err, results) => {
-
-        if (err) {
-            return res.status(500).json({
-                error: err.message
-            });
-        }
-
-        // Allow a maximum of 3 topics
-        if (results[0].total >= 3) {
-            return res.status(400).json({
-                message: "You can only submit a maximum of 3 research topics."
-            });
-        }
-
-        // Check if the topic already exists
-        const duplicateSql = `
-            SELECT id
-            FROM research_topics
-            WHERE LOWER(TRIM(title)) = LOWER(TRIM(?))
-        `;
-console.log("Checking duplicate for:", topic_title);
-        db.query(duplicateSql, [topic_title], (err, duplicate) => {
-            console.log("Duplicate query result:", duplicate);
+    // Get student profile ID
+    db.query(
+        "SELECT id FROM students WHERE user_id = ?",
+        [user_id],
+        (err, studentResult) => {
 
             if (err) {
                 return res.status(500).json({
@@ -52,49 +29,112 @@ console.log("Checking duplicate for:", topic_title);
                 });
             }
 
-            // Duplicate topic found
-            if (duplicate.length > 0) {
-                return res.status(400).json({
-                    message: "This research topic has already been submitted. Please choose a different topic."
+
+            if (studentResult.length === 0) {
+                return res.status(404).json({
+                    message: "Student profile not found."
                 });
             }
 
-            // Insert the new topic
-            const insertSql = `
-                INSERT INTO research_topics
-                (student_id, title, description)
-                VALUES (?, ?, ?)
+
+            const student_id = studentResult[0].id;
+
+
+            // Check how many topics student has submitted
+            const checkSql = `
+                SELECT COUNT(*) AS total
+                FROM research_topics
+                WHERE student_id = ?
             `;
 
-            db.query(
-                insertSql,
-                [student_id, topic_title.trim(), description],
-                (err) => {
 
-                    if (err) {
+            db.query(checkSql, [student_id], (err, results) => {
 
-                        // Handle duplicate entry from MySQL
-                        if (err.code === "ER_DUP_ENTRY") {
-                            return res.status(400).json({
-                                message: "This research topic already exists. Please choose a different topic."
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+
+
+                if (results[0].total >= 3) {
+                    return res.status(400).json({
+                        message: "You can only submit a maximum of 3 research topics."
+                    });
+                }
+
+
+                // Check duplicate topic
+                const duplicateSql = `
+                    SELECT id
+                    FROM research_topics
+                    WHERE LOWER(TRIM(title)) = LOWER(TRIM(?))
+                `;
+
+
+                db.query(
+                    duplicateSql,
+                    [topic_title],
+                    (err, duplicate) => {
+
+
+                        if (err) {
+                            return res.status(500).json({
+                                error: err.message
                             });
                         }
 
-                        return res.status(500).json({
-                            error: err.message
-                        });
+
+                        if (duplicate.length > 0) {
+                            return res.status(400).json({
+                                message: "This research topic has already been submitted."
+                            });
+                        }
+
+
+                        // Insert topic
+                        const insertSql = `
+                            INSERT INTO research_topics
+                            (student_id, title, description)
+                            VALUES (?, ?, ?)
+                        `;
+
+
+                        db.query(
+                            insertSql,
+                            [
+                                student_id,
+                                topic_title.trim(),
+                                description
+                            ],
+                            (err) => {
+
+
+                                if (err) {
+                                    return res.status(500).json({
+                                        error: err.message
+                                    });
+                                }
+
+
+                                res.status(201).json({
+                                    message: "Research topic submitted successfully."
+                                });
+
+
+                            }
+                        );
+
+
                     }
+                );
 
-                    res.status(201).json({
-                        message: "Research topic submitted successfully."
-                    });
 
-                }
-            );
+            });
 
-        });
 
-    });
+        }
+    );
 
 };
 // Get research topics
@@ -102,34 +142,97 @@ exports.getTopics = (req, res) => {
 
     console.log("Logged in user:", req.user);
 
-    let sql = "";
-    let params = [];
 
-    // Students can only see their own topics
+    // Student viewing own topics
     if (req.user.role === "student") {
 
-       sql = `
-    SELECT
-        id,
-        title,
-        description,
-        status,
-        supervisor_id,
-        lecturer_comment,
-        supervisor_feedback,
-        created_at
-    FROM research_topics
-    WHERE student_id = ?
-    ORDER BY created_at DESC
-`;
 
-        params = [req.user.id];
+        const studentQuery = `
+            SELECT id 
+            FROM students
+            WHERE user_id = ?
+        `;
 
-    } else {
 
-        // Lecturers and Admins can see all topics
-        sql = `
+        db.query(
+            studentQuery,
+            [req.user.id],
+            (err, studentResult) => {
+
+
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+
+
+                if (studentResult.length === 0) {
+                    return res.status(404).json({
+                        message: "Student profile not found."
+                    });
+                }
+
+
+                const student_id = studentResult[0].id;
+
+
+
+                const sql = `
+                    SELECT
+                        id,
+                        title,
+                        description,
+                        status,
+                        supervisor_id,
+                        lecturer_comment,
+                        supervisor_feedback,
+                        created_at
+
+                    FROM research_topics
+
+                    WHERE student_id = ?
+
+                    ORDER BY created_at DESC
+                `;
+
+
+
+                db.query(
+                    sql,
+                    [student_id],
+                    (err, results) => {
+
+
+                        if(err){
+                            return res.status(500).json({
+                                error: err.message
+                            });
+                        }
+
+
+                        console.log("Student topics:", results);
+
+
+                        res.json(results);
+
+                    }
+                );
+
+            }
+        );
+
+
+    } 
+
+
+    // Lecturer/Admin viewing all topics
+    else {
+
+
+        const sql = `
             SELECT
+
                 research_topics.id,
                 research_topics.title,
                 research_topics.description,
@@ -139,43 +242,56 @@ exports.getTopics = (req, res) => {
                 research_topics.supervisor_feedback,
                 research_topics.created_at,
 
-                students.full_name,
-                students.email,
+
+                users.full_name,
+                users.email,
+
+
+                students.student_id,
+                students.school,
+                students.department,
+                students.course,
+
 
                 supervisors.full_name AS supervisor_name
 
+
             FROM research_topics
 
-            JOIN users AS students
-                ON research_topics.student_id = students.id
+
+            JOIN students
+            ON research_topics.student_id = students.id
+
+
+            JOIN users
+            ON students.user_id = users.id
+
 
             LEFT JOIN users AS supervisors
-                ON research_topics.supervisor_id = supervisors.id
+            ON research_topics.supervisor_id = supervisors.id
+
 
             ORDER BY research_topics.created_at DESC
+
         `;
+
+
+        db.query(sql, (err, results)=>{
+
+
+            if(err){
+                return res.status(500).json({
+                    error: err.message
+                });
+            }
+
+
+            res.json(results);
+
+
+        });
+
     }
-
-    console.log("SQL:", sql);
-    console.log("Params:", params);
-
-    db.query(sql, params, (err, results) => {
-
-        if (err) {
-
-            console.error("Database Error:", err);
-
-            return res.status(500).json({
-                error: err.message
-            });
-
-        }
-
-        console.log("Topics returned:", results);
-
-        res.status(200).json(results);
-
-    });
 
 };
 // Lecturer approves or rejects a research topic
@@ -330,7 +446,7 @@ final_submissions.submitted_at
             ON research_topics.student_id = students.id
 
         LEFT JOIN final_submissions
-            ON research_topics.student_id = final_submissions.student_id
+ON students.user_id = final_submissions.student_id
 
         WHERE research_topics.supervisor_id = ?
 
@@ -386,39 +502,61 @@ exports.assignSupervisor = (req, res) => {
 // Student views assigned supervisor
 exports.getAssignedSupervisor = (req, res) => {
 
-    console.log("===== getAssignedSupervisor =====");
-    console.log("Decoded User:", req.user);
+    const user_id = req.user.id;
+
 
     const sql = `
         SELECT
             research_topics.title,
             research_topics.status,
+
             users.full_name AS supervisor_name,
             users.email AS supervisor_email
+
         FROM research_topics
-        LEFT JOIN users
-            ON research_topics.supervisor_id = users.id
-        WHERE research_topics.student_id = ?
+
+        JOIN students
+        ON research_topics.student_id = students.id
+
+        JOIN users
+        ON research_topics.supervisor_id = users.id
+
+        WHERE students.user_id = ?
         AND research_topics.status = 'Approved'
     `;
 
-    db.query(sql, [req.user.id], (err, results) => {
 
-        if (err) {
-            console.log("SQL Error:", err);
-            return res.status(500).json(err);
+    db.query(
+        sql,
+        [user_id],
+        (err, results) => {
+
+
+            if(err){
+                return res.status(500).json({
+                    error: err.message
+                });
+            }
+
+
+            console.log("Assigned supervisor:", results);
+
+
+
+            if(results.length === 0){
+
+                return res.status(404).json({
+                    message:"No supervisor assigned yet."
+                });
+
+            }
+
+
+            res.json(results[0]);
+
         }
+    );
 
-        console.log("SQL Results:", results);
-
-        if (results.length === 0) {
-            return res.status(404).json({
-                message: "No supervisor assigned yet."
-            });
-        }
-        
-        res.json(results[0]);
-    });
 };
 // Supervisor gives feedback
 exports.giveFeedback = (req, res) => {

@@ -47,6 +47,11 @@ function StudentLayout({ children }) {
             path: "/student/feedback",
             icon: "💬"
         },
+        {
+  label: "Concept Paper",
+  icon: "📑",
+  path: "/student/concept-paper"
+},
 {
     label: "Proposal Submission",
     path: "/student/proposal-submission",

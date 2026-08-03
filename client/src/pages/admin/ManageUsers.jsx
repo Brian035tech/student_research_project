@@ -1,462 +1,464 @@
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import AdminLayout from "../../components/AdminLayout";
 
 function ManageUsers() {
 
-    const [users, setUsers] = useState([]);
-    const [search, setSearch] = useState("");
-    const [message, setMessage] = useState("");
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+const [searchParams] = useSearchParams();
 
+const selectedRole =
+    searchParams.get("role");
 
-    const fetchUsers = async () => {
+const [users, setUsers] = useState([]);
 
-        try {
+const [search, setSearch] =
+    useState("");
 
-            const res = await api.get("/admin/users");
-            setUsers(res.data);
-
-        } catch(err) {
-
-            console.log(err);
-
-        }
-
-    };
+const [message, setMessage] =
+    useState("");
 
 
-    const deleteUser = async (id) => {
+useEffect(() => {
 
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this user?"
-        );
+    fetchUsers();
 
-
-        if(!confirmDelete) return;
+}, []);
 
 
-        try {
-
-            await api.delete(`/admin/users/${id}`);
-
-            alert("User deleted successfully.");
-
-            fetchUsers();
-
-        } catch(err) {
-
-            console.log(err);
-
-            alert("Failed to delete user.");
-
-        }
-
-    };
-
-    const updateUserRole = async (id, role) => {
+const fetchUsers = async () => {
 
     try {
 
-        const res = await api.put(
-            `/admin/users/${id}/role`,
-            {
-                role: role
-            }
-        );
+        const res =
+            await api.get(
+                "/admin/users"
+            );
 
-        setMessage(
-            "✅ " + res.data.message
+        setUsers(
+            res.data
         );
-
-        fetchUsers();
 
     } catch (err) {
 
         console.log(err);
 
-        setMessage(
-            "❌ " +
-            (
-                err.response?.data?.message ||
-                "Failed to update user role."
-            )
+    }
+
+};
+
+
+// Filter users by role and search text
+
+const filteredUsers =
+    users.filter((user) => {
+
+        const matchesRole =
+
+            !selectedRole
+
+            ||
+
+            user.role
+                ?.trim()
+                .toLowerCase()
+
+            ===
+
+            selectedRole
+                ?.trim()
+                .toLowerCase();
+
+
+        const searchText =
+
+            search
+                .trim()
+                .toLowerCase();
+
+
+        const matchesSearch =
+
+            user.full_name
+                ?.toLowerCase()
+                .includes(
+                    searchText
+                )
+
+            ||
+
+            user.email
+                ?.toLowerCase()
+                .includes(
+                    searchText
+                )
+
+            ||
+
+            user.role
+                ?.toLowerCase()
+                .includes(
+                    searchText
+                );
+
+
+        return (
+
+            matchesRole
+
+            &&
+
+            matchesSearch
+
+        );
+
+    });
+
+
+const deleteUser =
+async (id) => {
+
+    const confirmDelete =
+        window.confirm(
+
+            "Are you sure you want to delete this user?"
+
+        );
+
+
+    if (!confirmDelete) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await api.delete(
+
+            `/admin/users/${id}`
+
+        );
+
+
+        alert(
+
+            "User deleted successfully."
+
+        );
+
+
+        fetchUsers();
+
+
+    } catch (err) {
+
+        console.log(err);
+
+
+        alert(
+
+            "Failed to delete user."
+
         );
 
     }
 
 };
 
-    const roleBadge = (role) => {
 
-        const roles = {
+const updateUserRole =
+async (id, role) => {
 
-            student:{
-                color:"#2563eb",
-                icon:"🎓"
-            },
+    try {
 
-            lecturer:{
-                color:"#16a34a",
-                icon:"👨‍🏫"
-            },
+        const res =
+            await api.put(
 
-            supervisor:{
-                color:"#7c3aed",
-                icon:"📚"
-            },
+                `/admin/users/${id}/role`,
 
-            admin:{
-                color:"#dc2626",
-                icon:"🛡️"
-            }
+                {
+                    role: role
+                }
 
-        };
+            );
 
 
-        const current = roles[role] || {
-            color:"#64748b",
-            icon:"👤"
-        };
+        setMessage(
 
+            "✅ " +
 
-        return (
-
-            <span
-                style={{
-                    background:current.color,
-                    color:"white",
-                    padding:"7px 14px",
-                    borderRadius:"30px",
-                    fontSize:"13px",
-                    fontWeight:"600",
-                    display:"inline-flex",
-                    gap:"6px",
-                    alignItems:"center"
-                }}
-            >
-
-                {current.icon}
-
-                {role}
-
-            </span>
+            res.data.message
 
         );
+
+
+        fetchUsers();
+
+
+    } catch (err) {
+
+        console.log(err);
+
+
+        setMessage(
+
+            "❌ " +
+
+            (
+
+                err.response
+                ?.data
+                ?.message
+
+                ||
+
+                "Failed to update user role."
+
+            )
+
+        );
+
+    }
+
+};
+
+
+const roleBadge =
+(role) => {
+
+    const roles = {
+
+        student: {
+
+            color:
+            "#2563eb",
+
+            icon:
+            "🎓"
+
+        },
+
+
+        lecturer: {
+
+            color:
+            "#16a34a",
+
+            icon:
+            "👨‍🏫"
+
+        },
+
+
+        supervisor: {
+
+            color:
+            "#7c3aed",
+
+            icon:
+            "📚"
+
+        },
+
+
+        admin: {
+
+            color:
+            "#dc2626",
+
+            icon:
+            "🛡️"
+
+        }
 
     };
 
 
-    const filteredUsers = users.filter((user)=>
+    const current =
 
-        user.full_name.toLowerCase()
-        .includes(search.toLowerCase())
-
-        ||
-
-        user.email.toLowerCase()
-        .includes(search.toLowerCase())
+        roles[role]
 
         ||
 
-        user.role.toLowerCase()
-        .includes(search.toLowerCase())
+        {
 
-    );
+            color:
+            "#64748b",
 
+            icon:
+            "👤"
+
+        };
 
 
     return (
 
-        <AdminLayout>
+        <span
+
+            style={{
+
+                background:
+                current.color,
+
+                color:
+                "white",
+
+                padding:
+                "7px 14px",
+
+                borderRadius:
+                "30px",
+
+                fontSize:
+                "13px",
+
+                fontWeight:
+                "600",
+
+                display:
+                "inline-flex",
+
+                gap:
+                "6px",
+
+                alignItems:
+                "center"
+
+            }}
+
+        >
+
+            {
+
+                current.icon
+
+            }
+
+            {" "}
+
+            {
+
+                role
+
+            }
+
+        </span>
+
+    );
+
+};
 
 
-            <div className="container-fluid">
+return (
+
+    <AdminLayout>
+
+
+        <div className="container-fluid">
+
+
+            <div
+
+                className="
+                card
+                border-0
+                shadow-sm
+                p-4
+                "
+
+                style={{
+
+                    borderRadius:
+                    "22px"
+
+                }}
+
+            >
 
 
                 <div
-                    className="card border-0 shadow-sm p-4"
-                    style={{
-                        borderRadius:"22px"
-                    }}
+
+                    className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    mb-4
+                    "
+
                 >
 
 
-                    <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
 
 
-                        <div>
+                        <h2>
 
-                            <h2 className="fw-bold mb-1">
-                                👥 Manage Users
-                            </h2>
+                            {
 
-                            <p className="text-muted mb-0">
-                                Manage system users and their roles
-                            </p>
+                                selectedRole
 
-                        </div>
+                                ?
+
+                                `${
+                                    selectedRole
+                                    .charAt(0)
+                                    .toUpperCase()
+                                }${
+                                    selectedRole
+                                    .slice(1)
+                                } List`
+
+                                :
+
+                                "Manage Users"
+
+                            }
+
+                        </h2>
 
 
-                        <div>
+                        <p className="
+                        text-muted
+                        mb-0
+                        ">
 
-                            <span className="badge bg-primary px-3 py-2">
-                                Total Users: {users.length}
-                            </span>
+                            Manage system users
+                            and their roles
 
-                        </div>
+                        </p>
 
 
                     </div>
 
 
-
-                    <input
-
-                        type="text"
-
-                        className="form-control mb-4"
-
-                        style={{
-                            borderRadius:"15px",
-                            padding:"12px"
-                        }}
-
-                        placeholder="🔍 Search users by name, email or role..."
-
-                        value={search}
-
-                        onChange={(e)=>setSearch(e.target.value)}
-
-                    />
+                    <div>
 
 
-                    {message && (
-
-    <div
-        className={
-            message.includes("❌")
-                ? "alert alert-danger"
-                : "alert alert-success"
-        }
-    >
-
-        {message}
-
-    </div>
-
-)}
-
-
-
-
-                    <div className="table-responsive">
-
-
-                        <table className="table align-middle">
-
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>#</th>
-
-                                    <th>User</th>
-
-                                    <th>Email</th>
-
-                                    <th>Current Role</th>
-
-<th>Change Role</th>
-
-<th>Status</th>
-
-                                    <th>Action</th>
-
-                                </tr>
-
-
-                            </thead>
-
-
-
-                            <tbody>
-
+                        <span className="
+                        badge
+                        bg-primary
+                        px-3
+                        py-2
+                        ">
 
                             {
 
-                            filteredUsers.length > 0 ?
+                                selectedRole
 
+                                ?
 
-                            filteredUsers.map((user)=>(
+                                `Total ${selectedRole}s: ${filteredUsers.length}`
 
+                                :
 
-                                <tr key={user.id}>
-
-
-                                    <td>
-                                        {user.id}
-                                    </td>
-
-
-                                    <td className="fw-semibold">
-
-                                        {user.full_name}
-
-                                    </td>
-
-
-
-                                    <td>
-
-                                        {user.email}
-
-                                    </td>
-
-
-
-                                    <td>
-
-                                        {roleBadge(user.role)}
-
-                                    </td>
-
-<td>
-
-    {user.role === "admin" ? (
-
-        <span className="text-muted fw-bold">
-            Protected
-        </span>
-
-    ) : (
-
-        <select
-            className="form-select form-select-sm"
-            value={user.role}
-            onChange={(e) =>
-                updateUserRole(
-                    user.id,
-                    e.target.value
-                )
-            }
-        >
-
-            <option value="student">
-                🎓 Student
-            </option>
-
-            <option value="supervisor">
-                📚 Supervisor
-            </option>
-
-            <option value="lecturer">
-                👨‍🏫 Lecturer
-            </option>
-
-        </select>
-
-    )}
-
-</td>
-
-
-                                    <td>
-
-                                        <span className="text-success fw-semibold">
-
-                                            🟢 Active
-
-                                        </span>
-
-                                    </td>
-
-
-
-                                    <td>
-
-
-                                    {
-
-                                    user.role === "admin" ?
-
-
-                                    (
-
-                                        <span className="text-muted fw-bold">
-
-                                            Protected
-
-                                        </span>
-
-                                    )
-
-
-                                    :
-
-                                    (
-
-                                        <button
-
-                                        className="btn btn-danger btn-sm"
-
-                                        onClick={()=>deleteUser(user.id)}
-
-                                        >
-
-                                            🗑 Delete
-
-                                        </button>
-
-                                    )
-
-
-                                    }
-
-
-                                    </td>
-
-
-                                </tr>
-
-
-                            ))
-
-
-                            :
-
-
-                            (
-
-                                <tr>
-
-                                    <td 
-                                    colSpan="7"
-                                    className="text-center py-5 text-muted"
-                                    >
-
-                                        No users found
-
-                                    </td>
-
-                                </tr>
-
-                            )
-
+                                `Total Users: ${users.length}`
 
                             }
 
-
-                            </tbody>
-
-
-
-                        </table>
-
+                        </span>
 
 
                     </div>
@@ -465,14 +467,427 @@ function ManageUsers() {
                 </div>
 
 
+                <input
+
+                    type="text"
+
+                    className="
+                    form-control
+                    mb-4
+                    "
+
+                    style={{
+
+                        borderRadius:
+                        "15px",
+
+                        padding:
+                        "12px"
+
+                    }}
+
+                    placeholder="
+                    🔍 Search users by
+                    name, email or role...
+                    "
+
+                    value={
+                        search
+                    }
+
+                    onChange={
+                        (e) =>
+
+                        setSearch(
+                            e.target.value
+                        )
+                    }
+
+                />
+
+
+                {
+
+                    message
+
+                    &&
+
+                    <div
+
+                        className={
+
+                            message.includes(
+                                "❌"
+                            )
+
+                            ?
+
+                            "alert alert-danger"
+
+                            :
+
+                            "alert alert-success"
+
+                        }
+
+                    >
+
+                        {
+
+                            message
+
+                        }
+
+                    </div>
+
+                }
+
+
+                <div className="
+                table-responsive
+                ">
+
+
+                    <table className="
+                    table
+                    align-middle
+                    ">
+
+
+                        <thead>
+
+
+                            <tr>
+
+
+                                <th>
+
+                                    #
+
+                                </th>
+
+
+                                <th>
+
+                                    User
+
+                                </th>
+
+
+                                <th>
+
+                                    Email
+
+                                </th>
+
+
+                                <th>
+
+                                    Current Role
+
+                                </th>
+
+
+                                <th>
+
+                                    Change Role
+
+                                </th>
+
+
+                                <th>
+
+                                    Status
+
+                                </th>
+
+
+                                <th>
+
+                                    Action
+
+                                </th>
+
+
+                            </tr>
+
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {
+
+                                filteredUsers.length > 0
+
+                                ?
+
+                                filteredUsers.map(
+
+                                    (user) => (
+
+                                        <tr
+                                            key={
+                                                user.id
+                                            }
+                                        >
+
+
+                                            <td>
+
+                                                {
+                                                    user.id
+                                                }
+
+                                            </td>
+
+
+                                            <td className="
+                                            fw-semibold
+                                            ">
+
+                                                {
+                                                    user.full_name
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+                                                    user.email
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+
+                                                    roleBadge(
+
+                                                        user.role
+
+                                                    )
+
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+
+                                                {
+
+                                                    user.role
+                                                    ===
+                                                    "admin"
+
+                                                    ?
+
+                                                    <span className="
+                                                    text-muted
+                                                    fw-bold
+                                                    ">
+
+                                                        Protected
+
+                                                    </span>
+
+                                                    :
+
+                                                    <select
+
+                                                        className="
+                                                        form-select
+                                                        form-select-sm
+                                                        "
+
+                                                        value={
+                                                            user.role
+                                                        }
+
+                                                        onChange={
+                                                            (e) =>
+
+                                                            updateUserRole(
+
+                                                                user.id,
+
+                                                                e
+                                                                .target
+                                                                .value
+
+                                                            )
+                                                        }
+
+                                                    >
+
+
+                                                        <option
+                                                        value="
+                                                        student
+                                                        ">
+
+                                                            🎓 Student
+
+                                                        </option>
+
+
+                                                        <option
+                                                        value="
+                                                        supervisor
+                                                        ">
+
+                                                            📚 Supervisor
+
+                                                        </option>
+
+
+                                                        <option
+                                                        value="
+                                                        lecturer
+                                                        ">
+
+                                                            👨‍🏫 Lecturer
+
+                                                        </option>
+
+
+                                                    </select>
+
+                                                }
+
+
+                                            </td>
+
+
+                                            <td>
+
+
+                                                <span className="
+                                                text-success
+                                                fw-semibold
+                                                ">
+
+                                                    🟢 Active
+
+                                                </span>
+
+
+                                            </td>
+
+
+                                            <td>
+
+
+                                                {
+
+                                                    user.role
+                                                    ===
+                                                    "admin"
+
+                                                    ?
+
+                                                    <span className="
+                                                    text-muted
+                                                    fw-bold
+                                                    ">
+
+                                                        Protected
+
+                                                    </span>
+
+                                                    :
+
+                                                    <button
+
+                                                        className="
+                                                        btn
+                                                        btn-danger
+                                                        btn-sm
+                                                        "
+
+                                                        onClick={
+                                                            () =>
+
+                                                            deleteUser(
+
+                                                                user.id
+
+                                                            )
+                                                        }
+
+                                                    >
+
+                                                        🗑 Delete
+
+                                                    </button>
+
+                                                }
+
+
+                                            </td>
+
+
+                                        </tr>
+
+                                    )
+
+                                )
+
+                                :
+
+                                <tr>
+
+
+                                    <td
+
+                                        colSpan="7"
+
+                                        className="
+                                        text-center
+                                        py-5
+                                        text-muted
+                                        "
+
+                                    >
+
+                                        No users found
+
+                                    </td>
+
+
+                                </tr>
+
+                            }
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
             </div>
 
 
-        </AdminLayout>
+        </div>
 
-    );
+
+    </AdminLayout>
+
+);
+
 
 }
-
 
 export default ManageUsers;

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import LecturerLayout from "../../components/LecturerLayout";
 import api from "../../services/api";
 
 
 function ManageTopics() {
 
+    const [searchParams] = useSearchParams();
+
+const selectedStatus = searchParams.get("status");
 
     const [topics,setTopics] = useState([]);
     const [comments,setComments] = useState({});
@@ -75,9 +79,48 @@ function ManageTopics() {
 
     };
 
+const filteredTopics = topics.filter((topic) => {
 
+  // Filter by status from the dashboard URL
+  const matchesStatus =
+    !selectedStatus ||
+    topic.status
+      ?.trim()
+      .toLowerCase() ===
+    selectedStatus
+      ?.trim()
+      .toLowerCase();
 
+  // Filter by the search box
+  const searchText =
+    search
+      .trim()
+      .toLowerCase();
 
+  const matchesSearch =
+    topic.title
+      ?.toLowerCase()
+      .includes(searchText)
+
+    ||
+
+    topic.full_name
+      ?.toLowerCase()
+      .includes(searchText)
+
+    ||
+
+    topic.email
+      ?.toLowerCase()
+      .includes(searchText);
+
+  // Both filters must match
+  return (
+    matchesStatus &&
+    matchesSearch
+  );
+
+});
 
     const statusBadge=(status)=>{
 
@@ -143,29 +186,6 @@ function ManageTopics() {
 
 
 
-
-
-    const filteredTopics = topics.filter(topic=>
-
-        topic.title.toLowerCase()
-        .includes(search.toLowerCase())
-
-        ||
-
-        topic.full_name.toLowerCase()
-        .includes(search.toLowerCase())
-
-        ||
-
-        topic.email.toLowerCase()
-        .includes(search.toLowerCase())
-
-    );
-
-
-
-
-
 return(
 
 <LecturerLayout>
@@ -192,7 +212,11 @@ borderRadius:"22px"
 
 <h2 className="fw-bold">
 
-📚 Manage Research Topics
+📚 {
+  selectedStatus
+    ? `${selectedStatus.charAt(0).toUpperCase()}${selectedStatus.slice(1)} Research Topics`
+    : "Manage Research Topics"
+}
 
 </h2>
 
@@ -244,18 +268,11 @@ onChange={(e)=>setSearch(e.target.value)}
 <tr>
 
 
-<th>Student</th>
-
-<th>Email</th>
-
+<th>Student Details</th>
 <th>Research Topic</th>
-
 <th>Status</th>
-
 <th>Comment</th>
-
 <th>Action</th>
-
 
 </tr>
 
@@ -280,23 +297,36 @@ filteredTopics.map(topic=>(
 
 
 <td>
+    <strong>{topic.full_name}</strong>
+    <br />
 
-<div className="fw-semibold">
+    <small>
+        ID: {topic.student_id}
+    </small>
 
-{topic.full_name}
+    <br />
 
-</div>
+    <small>
+        {topic.school}
+    </small>
 
+    <br />
+
+    <small>
+        {topic.department}
+    </small>
+
+    <br />
+
+    <small>
+        {topic.course}
+    </small>
+
+    <br />
+
+    <small>
+        {topic.email}</small>
 </td>
-
-
-
-<td>
-
-{topic.email}
-
-</td>
-
 
 
 <td>

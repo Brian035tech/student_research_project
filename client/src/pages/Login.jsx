@@ -4,137 +4,174 @@ import api from "../services/api";
 import { saveToken, saveUser } from "../utils/auth";
 
 function Login() {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+const [formData, setFormData] = useState({
+email: "",
+password: "",
+});
 
-  const [message, setMessage] = useState("");
+const [message, setMessage] = useState("");
+const [welcomeMessage, setWelcomeMessage] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+const handleChange = (e) => {
+setFormData({
+...formData,
+[e.target.name]: e.target.value,
+});
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+e.preventDefault();
 
-    try {
-      const response = await api.post("/auth/login", formData);
 
-      saveToken(response.data.token);
-      saveUser(response.data.user);
+try {
+  const response = await api.post("/auth/login", formData);
 
-      setMessage(response.data.message);
+  saveToken(response.data.token);
+  saveUser(response.data.user);
 
-      const role = response.data.user.role;
+  const user = response.data.user;
+  const role = user.role;
 
-      if (role === "student") {
-        navigate("/student");
-      } else if (role === "lecturer") {
-        navigate("/lecturer");
-      } else if (role === "supervisor") {
-        navigate("/supervisor");
-      } else if (role === "admin") {
-        navigate("/admin");
-      }
+  setWelcomeMessage(
+    `Welcome back, ${user.full_name}! 👋`
+  );
 
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.message);
-      } else {
-        setMessage("Server error.");
-      }
+  // Wait for 2 seconds before opening the dashboard
+  setTimeout(() => {
+    if (role === "student") {
+      navigate("/student");
+    } else if (role === "lecturer") {
+      navigate("/lecturer");
+    } else if (role === "supervisor") {
+      navigate("/supervisor");
+    } else if (role === "admin") {
+      navigate("/admin");
     }
-  };
+  }, 2000);
 
-  return (
-  <div className="auth-container">
+} catch (error) {
+  if (error.response) {
+    setMessage(error.response.data.message);
+  } else {
+    setMessage("Server error.");
+  }
+}
 
-    <div className="auth-left">
 
-      <h1>Student Research Management System</h1>
+};
 
-      <p>
-        Welcome to the Student Research Management System.
-      </p>
+return ( <div className="auth-container">
+
+
+  {/* Welcome Popup */}
+  {welcomeMessage && (
+    <div
+      style={{
+        position: "fixed",
+        top: "25px",
+        right: "25px",
+        background: "#198754",
+        color: "white",
+        padding: "18px 25px",
+        borderRadius: "10px",
+        boxShadow: "0 5px 15px rgba(0,0,0,0.25)",
+        fontWeight: "bold",
+        zIndex: 1000,
+      }}
+    >
+      🎉 {welcomeMessage}
 
       <br />
 
-      <p>✔ Submit research topics online.</p>
-
-      <p>✔ Track lecturer approvals.</p>
-
-      <p>✔ Receive supervisor feedback.</p>
-
-      <p>✔ Upload your final research project.</p>
-
+      <small style={{ fontWeight: "normal" }}>
+        Login successful. Opening your dashboard...
+      </small>
     </div>
+  )}
 
-    <div className="auth-right">
+  <div className="auth-left">
 
-      <div className="login-card">
+    <h1>Student Research Management System</h1>
 
-        <h2>Login</h2>
+    <p>
+      Welcome to the Student Research Management System.
+    </p>
 
-        {message && (
-          <p className="message">
-            {message}
-          </p>
-        )}
+    <br />
 
-        <form onSubmit={handleSubmit}>
+    <p>✔ Submit research topics online.</p>
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+    <p>✔ Track lecturer approvals.</p>
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+    <p>✔ Receive supervisor feedback.</p>
 
-          <button
-            type="submit"
-            className="login-btn"
-          >
-            Login
-          </button>
+    <p>✔ Upload your final research project.</p>
 
-        </form>
+  </div>
 
-        <div className="register-link">
+  <div className="auth-right">
 
-          Don't have an account?
+    <div className="login-card">
 
-          <br /><br />
+      <h2>Login</h2>
 
-          <Link to="/register">
+      {message && (
+        <p className="message">
+          {message}
+        </p>
+      )}
 
-            Create an Account
+      <form onSubmit={handleSubmit}>
 
-          </Link>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email Address"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
 
-        </div>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+
+        <button
+          type="submit"
+          className="login-btn"
+        >
+          Login
+        </button>
+
+      </form>
+
+      <div className="register-link">
+
+        Don't have an account?
+
+        <br /><br />
+
+        <Link to="/register">
+          Create an Account
+        </Link>
 
       </div>
 
     </div>
 
   </div>
+
+</div>
+
+
 );
 }
+
 export default Login;

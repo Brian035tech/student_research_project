@@ -69,53 +69,115 @@ exports.getDashboardStats = (req, res) => {
 
     const stats = {};
 
-
+    // Count students
     db.query(
-        "SELECT COUNT(*) AS students FROM users WHERE role='student'",
+        "SELECT COUNT(*) AS students FROM users WHERE role = 'student'",
         (err, students) => {
 
-            if (err) return res.status(500).json(err);
+            if (err) {
+                console.log(err);
+
+                return res.status(500).json(err);
+            }
 
             stats.students = students[0].students;
 
 
-            db.query(
-                "SELECT COUNT(*) AS topics FROM research_topics",
-                (err, topics) => {
+           // Count available supervisors
+db.query(
+    `
+    SELECT COUNT(*) AS supervisors
+    FROM users
+    WHERE role = 'supervisor'
+    AND id NOT IN (
+        SELECT supervisor_id
+        FROM research_topics
+        WHERE supervisor_id IS NOT NULL
+    )
+    `,
+    (err, supervisors) => {
 
-                    if (err) return res.status(500).json(err);
+        if (err) {
+            console.log("Supervisor count error:", err);
 
-                    stats.topics = topics[0].topics;
+            return res.status(500).json(err);
+        }
+
+        stats.supervisors =
+            supervisors[0].supervisors;
 
 
+
+                    // Count all topics
                     db.query(
-                        "SELECT COUNT(*) AS pending FROM research_topics WHERE status='Pending'",
-                        (err, pending) => {
+                        "SELECT COUNT(*) AS topics FROM research_topics",
+                        (err, topics) => {
 
-                            if (err) return res.status(500).json(err);
+                            if (err) {
+                                console.log(err);
 
-                            stats.pending = pending[0].pending;
+                                return res.status(500).json(err);
+                            }
+
+                            stats.topics =
+                                topics[0].topics;
 
 
+                            // Count pending topics
                             db.query(
-                                "SELECT COUNT(*) AS approved FROM research_topics WHERE status='Approved'",
-                                (err, approved) => {
+                                "SELECT COUNT(*) AS pending FROM research_topics WHERE status = 'Pending'",
+                                (err, pending) => {
 
-                                    if (err) return res.status(500).json(err);
+                                    if (err) {
+                                        console.log(err);
 
-                                    stats.approved = approved[0].approved;
+                                        return res.status(500).json(err);
+                                    }
+
+                                    stats.pending =
+                                        pending[0].pending;
 
 
+                                    // Count approved topics
                                     db.query(
-                                        "SELECT COUNT(*) AS rejected FROM research_topics WHERE status='Rejected'",
-                                        (err, rejected) => {
+                                        "SELECT COUNT(*) AS approved FROM research_topics WHERE status = 'Approved'",
+                                        (err, approved) => {
 
-                                            if (err) return res.status(500).json(err);
+                                            if (err) {
+                                                console.log(err);
 
-                                            stats.rejected = rejected[0].rejected;
+                                                return res.status(500).json(err);
+                                            }
+
+                                            stats.approved =
+                                                approved[0].approved;
 
 
-                                            res.json(stats);
+                                            // Count rejected topics
+                                            db.query(
+                                                "SELECT COUNT(*) AS rejected FROM research_topics WHERE status = 'Rejected'",
+                                                (err, rejected) => {
+
+                                                    if (err) {
+                                                        console.log(err);
+
+                                                        return res.status(500).json(err);
+                                                    }
+
+                                                    stats.rejected =
+                                                        rejected[0].rejected;
+
+
+                                                    // Send all dashboard statistics
+                                                    console.log(
+                                                        "Lecturer dashboard stats:",
+                                                        stats
+                                                    );
+
+                                                    res.json(stats);
+
+                                                }
+                                            );
 
                                         }
                                     );

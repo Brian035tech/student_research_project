@@ -13,4 +13,10 @@ router.get(
     studentController.getDashboardStats
 );
 
+router.get(
+    "/profile",
+    verifyToken,
+    studentController.getStudentProfile
+);
+
 module.exports = router;

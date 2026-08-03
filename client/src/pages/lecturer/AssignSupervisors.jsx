@@ -105,9 +105,11 @@ function AssignSupervisors() {
             );
 
 
-            alert("Supervisor assigned successfully.");
+          alert("Supervisor assigned successfully.");
 
-            fetchApprovedTopics();
+fetchApprovedTopics();
+
+fetchSupervisors();
 
 
         }

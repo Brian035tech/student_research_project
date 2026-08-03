@@ -32,6 +32,11 @@ function AdminLayout({ children }) {
             icon: "📄",
         },
         {
+            label: "Reports",
+            path: "/admin/reports",
+            icon: "📊",
+        },
+        {
             label: "My Profile",
             path: "/admin/profile",
             icon: "👤",
@@ -39,7 +44,13 @@ function AdminLayout({ children }) {
     ];
 
     return (
-        <div className="d-flex" style={{ minHeight: "100vh", background: "#f4f6f9" }}>
+        <div
+            className="d-flex"
+            style={{
+                minHeight: "100vh",
+                background: "#f4f6f9",
+            }}
+        >
             <Sidebar
                 title="Administrator"
                 menuItems={menuItems}

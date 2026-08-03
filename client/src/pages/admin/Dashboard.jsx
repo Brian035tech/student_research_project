@@ -1,4 +1,11 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
+
+import {
+  useNavigate
+} from "react-router-dom";
 import api from "../../services/api";
 import AdminLayout from "../../components/AdminLayout";
 import DashboardCard from "../../components/DashboardCard";
@@ -27,6 +34,8 @@ ChartJS.register(
 );
 
 function Dashboard() {
+    const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user"));
     const [stats, setStats] = useState({});
     const [activities, setActivities] = useState([]);
 
@@ -115,64 +124,112 @@ function Dashboard() {
 
     return (
         <AdminLayout>
-            <h2 className="mb-4">Admin Dashboard</h2>
-
+            <h2>
+Welcome, {user?.full_name} 👋
+</h2>
             <div className="row">
                 <DashboardCard
-                    title="Students"
-                    value={stats.students || 0}
-                    icon="👨‍🎓"
-                    color="#0d6efd"
-                />
+    title="Students"
+    value={stats.students || 0}
+    icon="👨‍🎓"
+    color="#0d6efd"
+
+    onClick={() =>
+        navigate(
+            "/admin/users?role=student"
+        )
+    }
+/>
+<DashboardCard
+    title="Lecturers"
+    value={stats.lecturers || 0}
+    icon="👨‍🏫"
+    color="#198754"
+
+    onClick={() =>
+        navigate(
+            "/admin/users?role=lecturer"
+        )
+    }
+/>
+                
+                <DashboardCard
+    title="Supervisors"
+    value={stats.supervisors || 0}
+    icon="🧑‍💼"
+    color="#6f42c1"
+
+    onClick={() =>
+        navigate(
+            "/admin/users?role=supervisor"
+        )
+    }
+/>
+
+                
+<DashboardCard
+    title="Total Topics"
+    value={stats.topics || 0}
+    icon="📚"
+    color="#fd7e14"
+
+    onClick={() =>
+        navigate(
+            "/admin/topics"
+        )
+    }
+/>
+               <DashboardCard
+    title="Approved Topics"
+    value={stats.approved || 0}
+    icon="✅"
+    color="#198754"
+
+    onClick={() =>
+        navigate(
+            "/admin/topics?status=Approved"
+        )
+    }
+/>
+
+               <DashboardCard
+    title="Pending Topics"
+    value={stats.pending || 0}
+    icon="⏳"
+    color="#ffc107"
+
+    onClick={() =>
+        navigate(
+            "/admin/topics?status=Pending"
+        )
+    }
+/>
 
                 <DashboardCard
-                    title="Lecturers"
-                    value={stats.lecturers || 0}
-                    icon="👨‍🏫"
-                    color="#198754"
-                />
+    title="Rejected Topics"
+    value={stats.rejected || 0}
+    icon="❌"
+    color="#dc3545"
 
-                <DashboardCard
-                    title="Supervisors"
-                    value={stats.supervisors || 0}
-                    icon="🧑‍💼"
-                    color="#6f42c1"
-                />
+    onClick={() =>
+        navigate(
+            "/admin/topics?status=Rejected"
+        )
+    }
+/>
 
-                <DashboardCard
-                    title="Total Topics"
-                    value={stats.topics || 0}
-                    icon="📚"
-                    color="#fd7e14"
-                />
+               <DashboardCard
+    title="Final Submissions"
+    value={stats.submissions || 0}
+    icon="📄"
+    color="#20c997"
 
-                <DashboardCard
-                    title="Approved Topics"
-                    value={stats.approved || 0}
-                    icon="✅"
-                    color="#198754"
-                />
-
-                <DashboardCard
-                    title="Pending Topics"
-                    value={stats.pending || 0}
-                    icon="⏳"
-                    color="#ffc107"
-                />
-
-                <DashboardCard
-                    title="Rejected Topics"
-                    value={stats.rejected || 0}
-                    icon="❌"
-                    color="#dc3545"
-                />
-
-                <DashboardCard
-                    title="Final Submissions"
-                    value={stats.submissions || 0}
-                    icon="📄"
-                    color="#20c997"
-                />
+    onClick={() =>
+        navigate(
+            "/admin/submissions"
+        )
+    }
+/>
             </div>
 
             <div className="row mt-5">

@@ -2,93 +2,173 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import SupervisorLayout from "../../components/SupervisorLayout";
 
-
-function FinalDraftReview(){
-
-    const [submissions, setSubmissions] = useState([]);
-    const [feedback, setFeedback] = useState({});
+function FinalDraftReview() {
 
 
-    useEffect(()=>{
+const [submissions, setSubmissions] =
+    useState([]);
 
-        loadSubmissions();
+const [feedback, setFeedback] =
+    useState({});
 
-    },[]);
+const [loading, setLoading] =
+    useState(true);
 
-
-
-    const loadSubmissions = async()=>{
-
-        try{
-
-            const res = await api.get(
-                "/submissions/supervisor"
-            );
-
-            setSubmissions(res.data);
+const [processingId, setProcessingId] =
+    useState(null);
 
 
-        }catch(err){
+useEffect(() => {
 
-            console.log(err);
+    loadSubmissions();
 
-        }
-
-    };
+}, []);
 
 
+const loadSubmissions = async () => {
 
-    const approveDraft = async(id)=>{
+    try {
 
-        try{
+        setLoading(true);
 
-            await api.put(
-                `/submissions/${id}/approve`,
-                {
-                    feedback:
-                    feedback[id] || "Final draft approved."
-                }
-            );
+        const res = await api.get(
+            "/submissions/supervisor"
+        );
 
+        setSubmissions(res.data);
 
-            loadSubmissions();
+    } catch (err) {
 
+        console.log(
+            "Failed to load final drafts:",
+            err
+        );
 
-        }catch(err){
+        alert(
+            "Failed to load final drafts."
+        );
 
-            console.log(err);
+    } finally {
 
-        }
+        setLoading(false);
 
-    };
+    }
 
-
-
-    const requestRevision = async(id)=>{
-
-        try{
-
-            await api.put(
-                `/submissions/${id}/revision`,
-                {
-                    feedback:
-                    feedback[id]
-                }
-            );
+};
 
 
-            loadSubmissions();
+const approveDraft = async (id) => {
+
+    try {
+
+        setProcessingId(id);
+
+        const response = await api.put(
+            `/submissions/${id}/approve`,
+            {
+                feedback:
+                    feedback[id]?.trim()
+                    ||
+                    "Final draft approved."
+            }
+        );
+
+        alert(
+            response.data.message
+            ||
+            "Final draft approved successfully."
+        );
+
+        await loadSubmissions();
+
+    } catch (err) {
+
+        console.log(
+            "Approval error:",
+            err
+        );
+
+        alert(
+            err.response?.data?.message
+            ||
+            "Failed to approve the final draft."
+        );
+
+    } finally {
+
+        setProcessingId(null);
+
+    }
+
+};
 
 
-        }catch(err){
+const requestRevision = async (id) => {
 
-            console.log(err);
+    const revisionFeedback =
+        feedback[id]?.trim();
 
-        }
 
-    };
+    // Feedback is compulsory
+    // when requesting revision
 
-    const downloadDraft = async (id, fileName) => {
+    if (!revisionFeedback) {
+
+        alert(
+            "Please enter feedback explaining the required revisions before continuing."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        setProcessingId(id);
+
+        const response = await api.put(
+            `/submissions/${id}/revision`,
+            {
+                feedback:
+                    revisionFeedback
+            }
+        );
+
+        alert(
+            response.data.message
+            ||
+            "Revision request sent successfully."
+        );
+
+        await loadSubmissions();
+
+    } catch (err) {
+
+        console.log(
+            "Revision request error:",
+            err
+        );
+
+        alert(
+            err.response?.data?.message
+            ||
+            "Failed to request revision."
+        );
+
+    } finally {
+
+        setProcessingId(null);
+
+    }
+
+};
+
+
+const downloadDraft = async (
+    id,
+    fileName
+) => {
 
     try {
 
@@ -99,26 +179,37 @@ function FinalDraftReview(){
             }
         );
 
-        const fileUrl = window.URL.createObjectURL(
-            new Blob([response.data])
-        );
+        const fileUrl =
+            window.URL.createObjectURL(
+                new Blob([
+                    response.data
+                ])
+            );
 
-        const link = document.createElement("a");
+        const link =
+            document.createElement("a");
 
-        link.href = fileUrl;
+        link.href =
+            fileUrl;
 
         link.setAttribute(
             "download",
-            fileName || "Final_Draft"
+            fileName
+            ||
+            "Final_Draft"
         );
 
-        document.body.appendChild(link);
+        document.body.appendChild(
+            link
+        );
 
         link.click();
 
         link.remove();
 
-        window.URL.revokeObjectURL(fileUrl);
+        window.URL.revokeObjectURL(
+            fileUrl
+        );
 
     } catch (error) {
 
@@ -136,125 +227,21 @@ function FinalDraftReview(){
 };
 
 
+if (loading) {
+
     return (
 
         <SupervisorLayout>
 
+            <div className="container-fluid">
 
-        <div className="container-fluid">
+                <div className="card shadow-sm p-4">
 
+                    Loading final drafts...
 
-        <h2 className="mb-4">
-            📄 Final Draft Reviews
-        </h2>
-
-
-
-        {
-            submissions.length === 0 ?
-
-            <div className="alert alert-info">
-                No final drafts awaiting review.
-            </div>
-
-            :
-
-            submissions.map((item)=>(
-
-
-            <div
-                key={item.id}
-                className="card shadow-sm mb-3 p-4"
-            >
-
-
-                <h5>
-                    {item.full_name}
-                </h5>
-
-
-                <p>
-                    <strong>Topic:</strong>
-                    <br/>
-                    {item.title}
-                </p>
-
-
-                <p>
-                    <strong>Status:</strong>
-                    <br/>
-
-                    <span className="badge bg-warning">
-                        {item.status}
-                    </span>
-
-                </p>
-
-
-                <button
-    type="button"
-    className="btn btn-outline-primary mb-3"
-    onClick={() =>
-        downloadDraft(
-            item.id,
-            item.file_name
-        )
-    }
->
-    ⬇ Download Draft
-</button>
-
-
-
-                <textarea
-                    className="form-control mb-3"
-                    placeholder="Supervisor feedback..."
-                    value={feedback[item.id] || ""}
-                    onChange={(e)=>
-                        setFeedback({
-
-                        ...feedback,
-
-                        [item.id]:
-                        e.target.value
-
-                        })
-                    }
-                />
-
-
-
-                <button
-                    className="btn btn-success me-2"
-                    onClick={()=>
-                        approveDraft(item.id)
-                    }
-                >
-                    ✅ Approve
-                </button>
-
-
-                <button
-                    className="btn btn-warning"
-                    onClick={()=>
-                        requestRevision(item.id)
-                    }
-                >
-                    🔄 Request Revision
-                </button>
-
-
+                </div>
 
             </div>
-
-
-            ))
-
-        }
-
-
-        </div>
-
 
         </SupervisorLayout>
 
@@ -262,5 +249,276 @@ function FinalDraftReview(){
 
 }
 
+
+return (
+
+    <SupervisorLayout>
+
+        <div className="container-fluid">
+
+
+            <h2 className="mb-4">
+
+                📄 Final Draft Reviews
+
+            </h2>
+
+
+            {
+                submissions.length === 0
+
+                ?
+
+                <div className="alert alert-info">
+
+                    No final drafts awaiting review.
+
+                </div>
+
+                :
+
+                submissions.map(
+                    (item) => (
+
+                    <div
+
+                        key={item.id}
+
+                        className=
+                        "card shadow-sm mb-3 p-4"
+
+                    >
+
+
+                        <h5>
+
+                            {item.full_name}
+
+                        </h5>
+
+
+                        <p>
+
+                            <strong>
+
+                                Topic:
+
+                            </strong>
+
+                            <br />
+
+                            {item.title}
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+
+                                Status:
+
+                            </strong>
+
+                            <br />
+
+                            <span
+                                className=
+                                "badge bg-warning"
+                            >
+
+                                {item.status}
+
+                            </span>
+
+                        </p>
+
+
+                        <button
+
+                            type="button"
+
+                            className=
+                            "btn btn-outline-primary mb-3"
+
+                            onClick={() =>
+
+                                downloadDraft(
+
+                                    item.id,
+
+                                    item.file_name
+
+                                )
+
+                            }
+
+                        >
+
+                            ⬇ Download Draft
+
+                        </button>
+
+
+                        <label
+                            className=
+                            "form-label fw-bold"
+                        >
+
+                            Supervisor Feedback
+
+                        </label>
+
+
+                        <textarea
+
+                            className=
+                            "form-control mb-2"
+
+                            rows="5"
+
+                            placeholder={
+                                "Explain what the student should correct or improve..."
+                            }
+
+                            value={
+                                feedback[item.id]
+                                ||
+                                ""
+                            }
+
+                            onChange={
+                                (event) =>
+
+                                setFeedback({
+
+                                    ...feedback,
+
+                                    [item.id]:
+
+                                    event.target
+                                    .value
+
+                                })
+
+                            }
+
+                        />
+
+
+                        <small
+                            className=
+                            "text-muted d-block mb-3"
+                        >
+
+                            Feedback is required
+                            when requesting a
+                            revision.
+
+                        </small>
+
+
+                        <div
+                            className=
+                            "d-flex gap-2"
+                        >
+
+
+                            <button
+
+                                className=
+                                "btn btn-success"
+
+                                disabled={
+                                    processingId
+                                    ===
+                                    item.id
+                                }
+
+                                onClick={() =>
+
+                                    approveDraft(
+                                        item.id
+                                    )
+
+                                }
+
+                            >
+
+                                {
+                                    processingId
+                                    ===
+                                    item.id
+
+                                    ?
+
+                                    "Processing..."
+
+                                    :
+
+                                    "✅ Approve"
+
+                                }
+
+                            </button>
+
+
+                            <button
+
+                                className=
+                                "btn btn-warning"
+
+                                disabled={
+                                    processingId
+                                    ===
+                                    item.id
+                                }
+
+                                onClick={() =>
+
+                                    requestRevision(
+                                        item.id
+                                    )
+
+                                }
+
+                            >
+
+                                {
+                                    processingId
+                                    ===
+                                    item.id
+
+                                    ?
+
+                                    "Processing..."
+
+                                    :
+
+                                    "🔄 Request Revision"
+
+                                }
+
+                            </button>
+
+
+                        </div>
+
+
+                    </div>
+
+                ))
+
+            }
+
+
+        </div>
+
+    </SupervisorLayout>
+
+);
+
+
+}
 
 export default FinalDraftReview;

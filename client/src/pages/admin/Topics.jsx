@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import AdminLayout from "../../components/AdminLayout";
@@ -5,6 +6,11 @@ import AdminLayout from "../../components/AdminLayout";
 console.log("NEW TOPICS FILE LOADED");
 
 function Topics() {
+
+    const [searchParams] = useSearchParams();
+
+const selectedStatus =
+    searchParams.get("status");
 
     const [topics, setTopics] = useState([]);
 
@@ -80,10 +86,14 @@ function Topics() {
         <AdminLayout>
 
 
-            <h2>
-                Research Topics
-            </h2>
+            
+<h2>
 
+    {selectedStatus
+        ? `${selectedStatus} Research Topics`
+        : "All Research Topics"}
+
+</h2>
 
 
             <table
@@ -138,61 +148,81 @@ function Topics() {
                 <tbody>
 
 
-                {topics.length > 0 ? (
+{topics
+    .filter((topic) => {
 
-                    topics.map((topic)=>(
+        if (!selectedStatus) {
+            return true;
+        }
+
+        return (
+            topic.status ===
+            selectedStatus
+        );
+
+    })
+    .length > 0 ? (
+
+        topics
+            .filter((topic) => {
+
+                if (!selectedStatus) {
+                    return true;
+                }
+
+                return (
+                    topic.status ===
+                    selectedStatus
+                );
+
+            })
+            .map((topic) => (
+
+                <tr key={topic.id}>
+
+                    <td style={tdStyle}>
+                        {topic.id}
+                    </td>
+
+                    <td style={tdStyle}>
+                        {topic.title}
+                    </td>
+
+                    <td style={tdStyle}>
+                        {topic.student}
+                    </td>
+
+                    <td style={tdStyle}>
+                        {statusBadge(
+                            topic.status
+                        )}
+                    </td>
+
+                </tr>
+
+            ))
+
+    ) : (
+
+        <tr>
+
+            <td
+                colSpan="4"
+                style={{
+                    textAlign: "center",
+                    padding: "20px"
+                }}
+            >
+                No research topics found.
+            </td>
+
+        </tr>
+
+    )}
 
 
-                        <tr key={topic.id}>
+</tbody>
 
-
-                            <td style={tdStyle}>
-                                {topic.id}
-                            </td>
-
-
-                            <td style={tdStyle}>
-                                {topic.title}
-                            </td>
-
-
-                            <td style={tdStyle}>
-                                {topic.student}
-                            </td>
-
-<td style={tdStyle}>
-    {statusBadge(topic.status)}
-</td>
-
-                        </tr>
-
-
-                    ))
-
-
-                ) : (
-
-
-                    <tr>
-
-                        <td
-                            colSpan="4"
-                            style={{
-                                textAlign:"center",
-                                padding:"20px"
-                            }}
-                        >
-                            No research topics found.
-                        </td>
-
-
-                    </tr>
-
-
-                )}
-
-
-                </tbody>
 
 
             </table>

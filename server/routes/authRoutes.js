@@ -3,10 +3,28 @@ const router = express.Router();
 
 const authController = require("../controllers/authController");
 
-// Register
-router.post("/register", authController.register);
+// =====================================================
+// LOOK UP STUDENT DETAILS USING STUDENT ID
+// =====================================================
+router.get(
+"/student/:student_id",
+authController.getStudentDetails
+);
 
-// Login
-router.post("/login", authController.login);
+// =====================================================
+// REGISTER PRELOADED STUDENT
+// =====================================================
+router.post(
+"/register",
+authController.register
+);
+
+// =====================================================
+// LOGIN USER
+// =====================================================
+router.post(
+"/login",
+authController.login
+);
 
 module.exports = router;

@@ -7,6 +7,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const supervisorRoutes = require("./routes/supervisorRoutes");
 const proposalRoutes = require("./routes/proposalRoutes");
+const conceptPaperRoutes = require("./routes/conceptPaperRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 
 require("dotenv").config();
@@ -40,6 +42,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/supervisor", supervisorRoutes);
 app.use("/api/proposals", proposalRoutes);
+app.use("/api/concept-papers", conceptPaperRoutes);
+app.use("/api/reports", reportRoutes);
 // Start server
 const PORT = process.env.PORT || 5000;
 
